@@ -1,0 +1,22 @@
+/* ElectIQ Animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideInRight{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes dotPulse{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 5px rgba(108,99,255,0.3)}50%{box-shadow:0 0 25px rgba(108,99,255,0.6)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.hero__animate{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+.hero__animate--visible{opacity:1;transform:translateY(0)}
+.timeline__step{opacity:0;transform:translateX(-30px);transition:opacity .5s ease,transform .5s ease}
+.timeline__step--visible{opacity:1;transform:translateX(0)}
+.chat-message{opacity:0;transform:translateY(15px);transition:opacity .3s ease,transform .3s ease}
+.chat-message--visible{opacity:1;transform:translateY(0)}
+.chat-typing__dot{width:8px;height:8px;border-radius:50%;background:var(--clr-accent-primary);display:inline-block;margin:0 2px;animation:dotPulse 1.4s infinite ease-in-out}
+.chat-typing__dot:nth-child(2){animation-delay:.2s}
+.chat-typing__dot:nth-child(3){animation-delay:.4s}

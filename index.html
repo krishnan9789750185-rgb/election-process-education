@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ElectIQ - Your interactive guide to understanding the election process, timelines, and steps. Learn through AI chat, interactive timelines, role simulations, and quizzes.">
+  <meta name="theme-color" content="#0A0E27">
+  <meta name="robots" content="index, follow">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>ElectIQ — Interactive Election Process Education</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗳️</text></svg>">
+</head>
+<body>
+  <!-- Skip Link -->
+  <a href="#main-content" class="skip-link" id="skip-link">Skip to main content</a>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="container">
+      <a href="#hero" class="nav__logo" aria-label="ElectIQ Home">🗳️ ElectIQ</a>
+      <button id="nav-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav__menu" id="nav-menu" role="menubar">
+        <a href="#hero" class="nav__link nav__link--active" role="menuitem" aria-current="true">Home</a>
+        <a href="#assistant" class="nav__link" role="menuitem">AI Assistant</a>
+        <a href="#timeline" class="nav__link" role="menuitem">Timeline</a>
+        <a href="#simulator" class="nav__link" role="menuitem">Simulator</a>
+        <a href="#quiz" class="nav__link" role="menuitem">Quiz</a>
+        <a href="#data" class="nav__link" role="menuitem">Data</a>
+        <div class="a11y-toolbar" role="toolbar" aria-label="Accessibility options">
+          <button id="btn-contrast" aria-label="Toggle high contrast" title="Toggle High Contrast (Alt+1)">◐</button>
+          <button id="btn-font-inc" aria-label="Increase font size" title="Increase Font (Alt++)">A+</button>
+          <button id="btn-font-dec" aria-label="Decrease font size" title="Decrease Font (Alt+-)">A-</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main id="main-content">
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero section">
+      <canvas id="hero-particles" aria-hidden="true"></canvas>
+      <div class="container">
+        <div class="hero__animate">
+          <span class="hero__badge">✨ Powered by Google Gemini AI</span>
+        </div>
+        <h1 class="hero__title hero__animate">
+          Understand Elections<br><span class="hero__title-accent">Like Never Before</span>
+        </h1>
+        <p class="hero__desc hero__animate">
+          Your interactive, AI-powered guide to the democratic election process. Explore timelines, simulate roles, test your knowledge, and chat with an intelligent assistant.
+        </p>
+        <div class="hero__actions hero__animate">
+          <a href="#assistant" class="btn btn--primary btn--lg">💬 Chat with AI</a>
+          <a href="#timeline" class="btn btn--secondary btn--lg">📋 Explore Timeline</a>
+        </div>
+        <div class="hero__features hero__animate">
+          <div class="hero__feature">
+            <div class="hero__feature-icon">🤖</div>
+            <div class="hero__feature-title">AI Assistant</div>
+            <div class="hero__feature-desc">Ask any election question, powered by Google Gemini</div>
+          </div>
+          <div class="hero__feature">
+            <div class="hero__feature-icon">📊</div>
+            <div class="hero__feature-title">Interactive Timeline</div>
+            <div class="hero__feature-desc">Step-by-step visual guide with progress tracking</div>
+          </div>
+          <div class="hero__feature">
+            <div class="hero__feature-icon">🎭</div>
+            <div class="hero__feature-title">Role Simulator</div>
+            <div class="hero__feature-desc">Experience elections as voter, candidate, or officer</div>
+          </div>
+          <div class="hero__feature">
+            <div class="hero__feature-icon">🧠</div>
+            <div class="hero__feature-title">Knowledge Quiz</div>
+            <div class="hero__feature-desc">Test and strengthen your election knowledge</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Assistant Section -->
+    <section id="assistant" class="section">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title">AI Election Assistant</h2>
+          <p class="section__subtitle">Ask anything about elections, voting rights, or democratic processes. Powered by Google Gemini.</p>
+        </div>
+        <div class="assistant__layout">
+          <div id="api-key-section">
+            <p style="margin-bottom:var(--sp-3);font-size:var(--fs-sm);color:var(--clr-text-secondary)">🔑 Enter your <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google Gemini API Key</a> to enable AI chat:</p>
+            <div class="api-key-form">
+              <input type="password" id="api-key-input" placeholder="Enter your Gemini API key" autocomplete="off" aria-label="Gemini API key">
+              <button class="btn btn--primary" id="api-key-save-btn">Save Key</button>
+            </div>
+          </div>
+          <div class="chat-box" role="region" aria-label="Chat conversation">
+            <div id="chat-messages" role="log" aria-live="polite" aria-label="Messages"></div>
+            <div id="chat-suggestions"></div>
+            <div class="chat__input-bar">
+              <input type="text" id="chat-input" placeholder="Ask about elections..." aria-label="Type your election question" maxlength="1000" autocomplete="off">
+              <button id="chat-send-btn" aria-label="Send message">Send</button>
+            </div>
+            <div class="chat__toolbar">
+              <button id="chat-clear-btn" class="btn btn--secondary" style="font-size:var(--fs-xs);padding:var(--sp-1) var(--sp-3)">Clear Chat</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section id="timeline" class="section">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title">The Election Process</h2>
+          <p class="section__subtitle">Follow the complete election journey from announcement to government formation. Click each step to learn more.</p>
+        </div>
+        <div id="timeline-container" role="region" aria-label="Election process timeline"></div>
+      </div>
+    </section>
+
+    <!-- Simulator Section -->
+    <section id="simulator" class="section">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title">Election Role Simulator</h2>
+          <p class="section__subtitle">Experience the election process from different perspectives. Make decisions and see their impact.</p>
+        </div>
+        <div id="simulator-roles" role="region" aria-label="Choose your role"></div>
+        <div id="simulator-area" class="hidden" role="region" aria-label="Simulation area"></div>
+        <div style="text-align:center;margin-top:var(--sp-4)">
+          <button id="simulator-reset-btn" class="btn btn--secondary hidden">← Back to Roles</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz Section -->
+    <section id="quiz" class="section">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title">Election Knowledge Quiz</h2>
+          <p class="section__subtitle">Challenge yourself with questions about democratic elections and civic participation.</p>
+        </div>
+        <div id="quiz-container" role="region" aria-label="Election knowledge quiz"></div>
+      </div>
+    </section>
+
+    <!-- Data/Charts Section -->
+    <section id="data" class="section">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title">Election Insights</h2>
+          <p class="section__subtitle">Explore real election data and trends visualized with Google Charts.</p>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card" id="turnout-chart" role="img" aria-label="Voter turnout trends chart"></div>
+          <div class="chart-card" id="methods-chart" role="img" aria-label="Electoral systems worldwide chart"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <p>© 2026 <strong>ElectIQ</strong> — Interactive Election Process Education Platform</p>
+      <p style="margin-top:var(--sp-2)">Built with Google Gemini AI &amp; Google Charts | <a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer">Google AI Studio</a></p>
+    </div>
+  </footer>
+
+  <!-- App Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
