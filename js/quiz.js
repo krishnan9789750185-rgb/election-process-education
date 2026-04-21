@@ -9,6 +9,7 @@ import { QUIZ_QUESTIONS, APP_CONFIG } from './constants.js';
 import { qs, createElement, showToast, storage, delay, formatScore } from './utils.js';
 import { announce } from './accessibility.js';
 import { escapeHTML } from './security.js';
+import { saveQuizScore, logAnalyticsEvent } from './firebase-config.js';
 
 /** @type {Array<Object>} Shuffled quiz questions for current session */
 let questions = [];
@@ -306,6 +307,13 @@ async function handleAnswer(selectedIndex) {
     streak = 0;
   }
 
+  /* Log specific answer interaction to Firebase Analytics */
+  logAnalyticsEvent('quiz_answer_submitted', {
+    question_index: currentIndex,
+    is_correct: isCorrect,
+    streak: streak
+  });
+
   showCorrectAnswer(question, selectedIndex);
   announce(isCorrect ? 'Correct!' : `Incorrect. The correct answer is: ${question.options[question.correct]}`);
 }
@@ -376,6 +384,14 @@ function showQuizResults() {
   if (percentage > currentHighScore) {
     storage.set('quiz_high_score', percentage);
   }
+
+  /* Save score to Firestore database and Leaderboard */
+  saveQuizScore({
+    score: percentage,
+    correct: correctCount,
+    total: totalQ,
+    bestStreak: bestStreak
+  });
 
   let grade, gradeEmoji;
   if (percentage >= 90) {

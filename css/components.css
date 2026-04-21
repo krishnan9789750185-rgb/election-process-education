@@ -179,6 +179,16 @@
 .quiz__breakdown-answer{color:var(--clr-text-secondary);font-size:var(--fs-xs)}
 .quiz__results-actions{display:flex;gap:var(--sp-4);justify-content:center;margin-top:var(--sp-6)}
 
+/* --- Charts (Google Charts) --- */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:var(--sp-6)}
+.chart-card{background:var(--clr-bg-surface);border:1px solid var(--clr-border);border-radius:var(--radius-lg);padding:var(--sp-4);min-height:300px}
+.chart-fallback{padding:var(--sp-8);text-align:center;color:var(--clr-text-muted)}
+
+/* --- Accessibility Toolbar --- */
+.a11y-toolbar{display:flex;gap:var(--sp-2);align-items:center}
+.a11y-toolbar button{padding:var(--sp-1) var(--sp-2);font-size:var(--fs-xs);border-radius:var(--radius-sm);background:var(--clr-bg-surface);border:1px solid var(--clr-border);color:var(--clr-text-secondary);transition:var(--transition-fast)}
+.a11y-toolbar button:hover{border-color:var(--clr-accent-primary);color:var(--clr-text-primary)}
+
 /* --- Google Maps --- */
 .maps__search{margin-bottom:var(--sp-6)}
 .maps__search-bar{display:flex;gap:var(--sp-3);flex-wrap:wrap}

@@ -9,6 +9,7 @@ import { SIMULATOR_ROLES, SIMULATOR_SCENARIOS } from './constants.js';
 import { qs, createElement, showToast, storage, delay } from './utils.js';
 import { announce } from './accessibility.js';
 import { escapeHTML } from './security.js';
+import { saveSimulatorResult, logAnalyticsEvent } from './firebase-config.js';
 
 /** @type {string|null} Currently selected role ID */
 let currentRole = null;
@@ -288,6 +289,14 @@ async function handleChoice(choiceIndex) {
 
   announce(choice.outcome);
 
+  /* Log specific simulator decision to Firebase Analytics */
+  logAnalyticsEvent('simulator_decision_made', {
+    role: currentRole,
+    step: currentStepIndex + 1,
+    is_optimal: choice.isOptimal,
+    points_earned: choice.points
+  });
+
   /* Save progress */
   storage.set('simulator_progress', {
     role: currentRole,
@@ -403,8 +412,14 @@ function showResults() {
   simArea.appendChild(resultsEl);
   announce(`Simulation complete! Your score: ${percentage}%. ${gradeMessage}`);
 
-  /* Clear saved progress */
+  /* Clear saved progress and save to Firestore */
   storage.remove('simulator_progress');
+  saveSimulatorResult({
+    role: currentRole,
+    score: totalScore,
+    maxScore: maxScore,
+    choices: choiceHistory
+  });
 }
 
 /**
