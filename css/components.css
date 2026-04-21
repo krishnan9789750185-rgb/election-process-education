@@ -179,15 +179,31 @@
 .quiz__breakdown-answer{color:var(--clr-text-secondary);font-size:var(--fs-xs)}
 .quiz__results-actions{display:flex;gap:var(--sp-4);justify-content:center;margin-top:var(--sp-6)}
 
-/* --- Charts --- */
-.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:var(--sp-6)}
-.chart-card{background:var(--clr-bg-surface);border:1px solid var(--clr-border);border-radius:var(--radius-lg);padding:var(--sp-4);min-height:300px}
-.chart-fallback{padding:var(--sp-8);text-align:center;color:var(--clr-text-muted)}
+/* --- Google Maps --- */
+.maps__search{margin-bottom:var(--sp-6)}
+.maps__search-bar{display:flex;gap:var(--sp-3);flex-wrap:wrap}
+.maps__input{flex:1;min-width:200px;padding:var(--sp-3) var(--sp-4);background:var(--clr-bg-surface);border:1px solid var(--clr-border);border-radius:var(--radius-md);color:var(--clr-text-primary);font-size:var(--fs-sm)}
+.maps__input:focus{border-color:var(--clr-accent-primary);outline:none;box-shadow:0 0 0 3px rgba(108,99,255,0.2)}
+.maps__search-btn{white-space:nowrap}
+.maps__hint{font-size:var(--fs-xs);color:var(--clr-text-muted);margin-top:var(--sp-2)}
+.maps__iframe{border-radius:var(--radius-lg);border:1px solid var(--clr-border)}
 
-/* --- Accessibility Toolbar --- */
-.a11y-toolbar{display:flex;gap:var(--sp-2);align-items:center}
-.a11y-toolbar button{padding:var(--sp-1) var(--sp-2);font-size:var(--fs-xs);border-radius:var(--radius-sm);background:var(--clr-bg-surface);border:1px solid var(--clr-border);color:var(--clr-text-secondary);transition:var(--transition-fast)}
-.a11y-toolbar button:hover{border-color:var(--clr-accent-primary);color:var(--clr-text-primary)}
+/* --- Google Calendar --- */
+.calendar-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--sp-4)}
+.calendar-card{display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-5);background:var(--clr-bg-surface);border:1px solid var(--clr-border);border-radius:var(--radius-lg);transition:all var(--transition-base)}
+.calendar-card:hover{border-color:var(--clr-border-hover);box-shadow:var(--shadow-glow-sm)}
+.calendar-card__date{display:flex;flex-direction:column;align-items:center;justify-content:center;width:60px;height:60px;background:var(--grad-primary);border-radius:var(--radius-md);flex-shrink:0}
+.calendar-card__month{font-size:var(--fs-xs);font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.8)}
+.calendar-card__day{font-size:var(--fs-xl);font-weight:800;color:#fff;line-height:1}
+.calendar-card__info{flex:1;min-width:0}
+.calendar-card__title{font-size:var(--fs-sm);font-weight:600;margin-bottom:var(--sp-1)}
+.calendar-card__desc{font-size:var(--fs-xs);color:var(--clr-text-secondary);margin-bottom:var(--sp-1)}
+.calendar-card__fulldate{font-size:var(--fs-xs);color:var(--clr-text-muted)}
+.calendar-card__btn{font-size:var(--fs-xs)!important;padding:var(--sp-2) var(--sp-3)!important;white-space:nowrap;flex-shrink:0}
+
+/* --- Google Translate --- */
+.translate-fallback{color:var(--clr-text-muted);font-size:var(--fs-sm)}
+.goog-te-gadget{font-family:var(--font-primary)!important}
 
 /* --- Footer --- */
 .footer{padding:var(--sp-8) 0;border-top:1px solid var(--clr-border);text-align:center;color:var(--clr-text-muted);font-size:var(--fs-sm)}

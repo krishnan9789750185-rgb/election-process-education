@@ -154,7 +154,7 @@
       </div>
     </section>
 
-    <!-- Data/Charts Section -->
+    <!-- Data/Charts Section (Google Charts) -->
     <section id="data" class="section">
       <div class="container">
         <div class="section__header">
@@ -168,13 +168,57 @@
       </div>
     </section>
 
+    <!-- Polling Station Finder (Google Maps Platform) -->
+    <section id="maps" class="section">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title">Find Your Polling Station</h2>
+          <p class="section__subtitle">Use Google Maps to locate nearby polling stations and voting centers.</p>
+        </div>
+        <div id="maps-container" role="region" aria-label="Polling station map search"></div>
+      </div>
+    </section>
+
+    <!-- Election Calendar (Google Calendar) -->
+    <section id="calendar" class="section">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title">Election Calendar</h2>
+          <p class="section__subtitle">Never miss an important election date. Add reminders to your Google Calendar.</p>
+        </div>
+        <div id="calendar-dates" class="calendar-grid" role="region" aria-label="Important election dates"></div>
+      </div>
+    </section>
+
+    <!-- Language Support (Google Translate) -->
+    <section id="translate" class="section">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title">🌐 Multi-Language Support</h2>
+          <p class="section__subtitle">Access election education in your preferred language using Google Translate.</p>
+        </div>
+        <div style="display:flex;justify-content:center;padding:var(--sp-4)">
+          <div id="google-translate-widget" role="region" aria-label="Google Translate language selector"></div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- Footer -->
   <footer class="footer" role="contentinfo">
     <div class="container">
       <p>© 2026 <strong>ElectIQ</strong> — Interactive Election Process Education Platform</p>
-      <p style="margin-top:var(--sp-2)">Built with Google Gemini AI &amp; Google Charts | <a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer">Google AI Studio</a></p>
+      <p style="margin-top:var(--sp-2)">
+        Built with
+        <strong>Google Gemini AI</strong> · <strong>Google Charts</strong> · <strong>Google Maps</strong> ·
+        <strong>Google Calendar</strong> · <strong>Google Translate</strong> · <strong>Firebase</strong> ·
+        <strong>Google Cloud Run</strong> · <strong>Google Fonts</strong>
+      </p>
+      <p style="margin-top:var(--sp-1)">
+        <a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer">Google AI Studio</a> |
+        <a href="https://firebase.google.com" target="_blank" rel="noopener noreferrer">Firebase Console</a>
+      </p>
     </div>
   </footer>
 

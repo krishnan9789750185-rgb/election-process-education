@@ -13,6 +13,8 @@ import { initAssistant } from './assistant.js';
 import { initTimeline } from './timeline.js';
 import { initSimulator } from './simulator.js';
 import { initQuiz } from './quiz.js';
+import { initFirebase, trackSectionView, logAnalyticsEvent } from './firebase-config.js';
+import { initGoogleServices } from './google-services.js';
 
 /** @type {string} Currently active section ID */
 let activeSection = 'hero';
@@ -21,7 +23,7 @@ let activeSection = 'hero';
  * Initializes the entire application.
  * Called when the DOM is fully loaded.
  */
-function initApp() {
+async function initApp() {
   /* Security first */
   enforceCSP();
 
@@ -33,11 +35,18 @@ function initApp() {
   setupMobileMenu();
   setupScrollEffects();
 
+  /* Initialize Firebase (Auth, Firestore, Analytics) */
+  await initFirebase();
+  logAnalyticsEvent('app_initialized', { version: APP_CONFIG.APP_VERSION });
+
   /* Initialize feature modules */
   initTimeline();
   initAssistant();
   initSimulator();
   initQuiz();
+
+  /* Initialize Google Services (Translate, Calendar, Maps) */
+  initGoogleServices();
 
   /* Setup accessibility toolbar */
   setupAccessibilityToolbar();
@@ -79,6 +88,7 @@ function setupNavigation() {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           updateActiveNav(entry.target.id);
+          trackSectionView(entry.target.id);
         }
       });
     },
@@ -289,7 +299,7 @@ function initParticles() {
  * Loads Google Charts library and renders the election data visualization.
  */
 function loadGoogleCharts() {
-  const chartContainer = qs('#election-chart');
+  const chartContainer = qs('#turnout-chart');
   if (!chartContainer) {
     return;
   }
