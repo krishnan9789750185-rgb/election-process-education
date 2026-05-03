@@ -6,9 +6,10 @@
  */
 
 import { ELECTION_TIMELINE, APP_CONFIG } from './constants.js';
-import { qs, qsa, createElement, scrollToElement, storage } from './utils.js';
+import { qs, qsa, createElement, storage } from './utils.js';
 import { announce, initKeyboardNav } from './accessibility.js';
 import { escapeHTML } from './security.js';
+import { saveUserProgress } from './firebase-config.js';
 
 /** @type {number} Currently active/expanded step index */
 let activeStep = -1;
@@ -225,6 +226,8 @@ function toggleStep(stepId) {
       visitedSteps.add(stepId);
       stepEl.classList.add('timeline__step--visited');
       storage.set('visited_steps', Array.from(visitedSteps));
+      /* Persist progress to Firebase Firestore */
+      saveUserProgress({ visitedSteps: Array.from(visitedSteps) });
       updateProgress();
     }
   }

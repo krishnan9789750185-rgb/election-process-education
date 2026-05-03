@@ -217,6 +217,7 @@ function updateMapSearch(query) {
   const mapsApiKey = APP_CONFIG.MAPS_EMBED_API_KEY;
   const encodedQuery = encodeURIComponent(query);
   iframe.src = `https://www.google.com/maps/embed/v1/search?key=${mapsApiKey}&q=${encodedQuery}`;
+  iframe.title = `Google Maps showing results for: ${query}`;
   announce(`Map updated to show results for: ${query}`);
 }
 

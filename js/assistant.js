@@ -6,7 +6,7 @@
 
 import { APP_CONFIG, GEMINI_SYSTEM_PROMPT, SUGGESTED_QUESTIONS } from './constants.js';
 import { escapeHTML, validateInput, rateLimiter, isValidAPIKey } from './security.js';
-import { qs, createElement, delay, showToast, storage, generateId } from './utils.js';
+import { qs, createElement, showToast, storage, generateId } from './utils.js';
 import { announce } from './accessibility.js';
 
 /** @type {Array<Object>} Chat message history */
@@ -74,12 +74,11 @@ function setupEventListeners() {
   const apiKeyBtn = qs('#api-key-save-btn');
   const clearBtn = qs('#chat-clear-btn');
 
-  if (sendBtn) {
+  if (sendBtn && chatInput) {
     sendBtn.addEventListener('click', () => {
-      const input = qs('#chat-input');
-      if (input && input.value.trim()) {
-        handleSendMessage(input.value.trim());
-        input.value = '';
+      if (chatInput.value.trim()) {
+        handleSendMessage(chatInput.value.trim());
+        chatInput.value = '';
       }
     });
   }
@@ -242,13 +241,21 @@ async function callGeminiAPI(userMessage) {
     throw new Error('API_KEY_MISSING');
   }
 
+  /*
+   * NOTE: Gemini API requires the key as a URL query parameter.
+   * Header-based auth (x-goog-api-key) is not supported for client-side calls.
+   * In production, use a server-side proxy to avoid key exposure.
+   */
   const url = `${APP_CONFIG.GEMINI_API_URL}/${APP_CONFIG.GEMINI_MODEL}:generateContent?key=${apiKey}`;
 
-  /* Build conversation context from recent messages */
-  const recentHistory = chatHistory.slice(-APP_CONFIG.RECENT_HISTORY_LIMIT).map((msg) => ({
-    role: msg.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: msg.content }],
-  }));
+  /* Build conversation context from recent messages, filtering out error entries */
+  const recentHistory = chatHistory
+    .filter((msg) => msg.role !== 'error')
+    .slice(-APP_CONFIG.RECENT_HISTORY_LIMIT)
+    .map((msg) => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }],
+    }));
 
   const requestBody = {
     contents: [

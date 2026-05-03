@@ -13,8 +13,9 @@ import { initAssistant } from './assistant.js';
 import { initTimeline } from './timeline.js';
 import { initSimulator } from './simulator.js';
 import { initQuiz } from './quiz.js';
-import { initFirebase, trackSectionView, logAnalyticsEvent } from './firebase-config.js';
+import { initFirebase, trackSectionView, logAnalyticsEvent, signInWithGoogle, getLeaderboard, submitFeedback } from './firebase-config.js';
 import { initGoogleServices } from './google-services.js';
+import { escapeHTML } from './security.js';
 
 /** @type {string} Currently active section ID */
 let activeSection = 'hero';
@@ -55,8 +56,13 @@ async function initApp() {
   /* Animate hero section */
   animateHero();
 
-  /* Google Charts integration */
+  /* Google Charts integration (lazy-loaded) */
   loadGoogleCharts();
+
+  /* Setup Google Sign-In, Leaderboard, and Feedback */
+  setupGoogleSignIn();
+  loadLeaderboard();
+  setupFeedbackForm();
 
   announce('ElectIQ application loaded. Navigate using the menu or scroll through sections.');
 }
@@ -253,8 +259,8 @@ function initParticles() {
     return {
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - APP_CONFIG.PARTICLE_VELOCITY_RANGE) * APP_CONFIG.PARTICLE_VELOCITY_RANGE,
-      vy: (Math.random() - APP_CONFIG.PARTICLE_VELOCITY_RANGE) * APP_CONFIG.PARTICLE_VELOCITY_RANGE,
+      vx: (Math.random() - 0.5) * APP_CONFIG.PARTICLE_VELOCITY_RANGE,
+      vy: (Math.random() - 0.5) * APP_CONFIG.PARTICLE_VELOCITY_RANGE,
       size: APP_CONFIG.PARTICLE_MIN_SIZE + Math.random() * APP_CONFIG.PARTICLE_SIZE_RANGE,
       opacity: APP_CONFIG.PARTICLE_MIN_OPACITY + Math.random() * APP_CONFIG.PARTICLE_OPACITY_RANGE,
       symbol: PARTICLE_SYMBOLS[Math.floor(Math.random() * PARTICLE_SYMBOLS.length)],
@@ -293,6 +299,18 @@ function initParticles() {
 
   window.addEventListener('resize', throttle(resize));
 
+  /* Pause animation when hero section is not visible */
+  const heroObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        if (!animFrameId) { animFrameId = requestAnimationFrame(animate); }
+      } else {
+        if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+      }
+    });
+  }, { threshold: 0 });
+  heroObserver.observe(canvas.parentElement);
+
   /* Cleanup on page unload */
   window.addEventListener('beforeunload', () => {
     if (animFrameId) {
@@ -302,7 +320,8 @@ function initParticles() {
 }
 
 /**
- * Loads Google Charts library and renders the election data visualization.
+ * Loads Google Charts library lazily when the data section scrolls into view.
+ * Uses IntersectionObserver to defer loading until needed.
  */
 function loadGoogleCharts() {
   const chartContainer = qs('#turnout-chart');
@@ -310,19 +329,33 @@ function loadGoogleCharts() {
     return;
   }
 
-  const script = document.createElement('script');
-  script.src = 'https://www.gstatic.com/charts/loader.js';
-  script.async = true;
-  script.onload = () => {
-    if (typeof google !== 'undefined' && google.charts) {
-      google.charts.load('current', { packages: ['corechart', 'bar'] });
-      google.charts.setOnLoadCallback(drawCharts);
-    }
-  };
-  script.onerror = () => {
-    chartContainer.innerHTML = '<p class="chart-fallback">📊 Chart visualization requires an internet connection.</p>';
-  };
-  document.head.appendChild(script);
+  const dataSection = qs('#data');
+  if (!dataSection) {
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        observer.disconnect();
+        const script = document.createElement('script');
+        script.src = 'https://www.gstatic.com/charts/loader.js';
+        script.async = true;
+        script.onload = () => {
+          if (typeof google !== 'undefined' && google.charts) {
+            google.charts.load('current', { packages: ['corechart', 'bar'] });
+            google.charts.setOnLoadCallback(drawCharts);
+          }
+        };
+        script.onerror = () => {
+          chartContainer.innerHTML = '<p class="chart-fallback">📊 Chart visualization requires an internet connection.</p>';
+        };
+        document.head.appendChild(script);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  observer.observe(dataSection);
 }
 
 /**
@@ -412,6 +445,118 @@ function drawElectionMethodsChart() {
 
   const chart = new google.visualization.PieChart(container);
   chart.draw(data, options);
+}
+
+/* ============================================================
+ * GOOGLE SIGN-IN INTEGRATION
+ * ============================================================ */
+
+/**
+ * Sets up the Google Sign-In button with Firebase Authentication.
+ */
+function setupGoogleSignIn() {
+  const signInBtn = qs('#google-signin-btn');
+  const userDisplay = qs('#user-display');
+
+  if (!signInBtn) {
+    return;
+  }
+
+  signInBtn.addEventListener('click', async () => {
+    signInBtn.disabled = true;
+    signInBtn.textContent = 'Signing in...';
+    const user = await signInWithGoogle();
+
+    if (user) {
+      signInBtn.classList.add('hidden');
+      if (userDisplay) {
+        userDisplay.textContent = `✅ Signed in as ${escapeHTML(user.displayName || user.email || 'Google User')}`;
+      }
+      showToast(`Welcome, ${user.displayName || 'User'}!`, 'success');
+      announce(`Signed in as ${user.displayName || 'Google User'}`);
+      /* Refresh leaderboard after sign-in */
+      loadLeaderboard();
+    } else {
+      signInBtn.disabled = false;
+      signInBtn.textContent = '🔑 Sign in with Google';
+      showToast('Sign-in failed. Please try again.', 'error');
+    }
+  });
+}
+
+/* ============================================================
+ * LEADERBOARD (FIRESTORE READ)
+ * ============================================================ */
+
+/**
+ * Loads and renders the leaderboard from Firebase Firestore.
+ */
+async function loadLeaderboard() {
+  const container = qs('#leaderboard-container');
+  if (!container) {
+    return;
+  }
+
+  container.innerHTML = '<p class="leaderboard__loading">Loading leaderboard...</p>';
+
+  const entries = await getLeaderboard();
+
+  if (!entries || entries.length === 0) {
+    container.innerHTML = '<p class="leaderboard__empty">No scores yet. Be the first to take the quiz!</p>';
+    return;
+  }
+
+  let html = '<table class="leaderboard__table" role="table"><thead><tr><th>Rank</th><th>Player</th><th>Score</th><th>Date</th></tr></thead><tbody>';
+  entries.forEach((entry, index) => {
+    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`;
+    const date = entry.timestamp ? new Date(entry.timestamp).toLocaleDateString() : '—';
+    html += `<tr><td>${medal}</td><td>${escapeHTML(entry.displayName || 'Anonymous')}</td><td>${entry.score || 0}%</td><td>${date}</td></tr>`;
+  });
+  html += '</tbody></table>';
+
+  container.innerHTML = html;
+}
+
+/* ============================================================
+ * FEEDBACK FORM (FIRESTORE WRITE)
+ * ============================================================ */
+
+/**
+ * Sets up the feedback form submission to Firebase Firestore.
+ */
+function setupFeedbackForm() {
+  const submitBtn = qs('#feedback-submit-btn');
+  const textArea = qs('#feedback-text');
+  const ratingSelect = qs('#feedback-rating');
+
+  if (!submitBtn || !textArea) {
+    return;
+  }
+
+  submitBtn.addEventListener('click', async () => {
+    const message = textArea.value.trim();
+    if (!message) {
+      showToast('Please enter your feedback before submitting.', 'warning');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    const rating = ratingSelect ? Number(ratingSelect.value) : 5;
+    const success = await submitFeedback({ message, rating });
+
+    if (success) {
+      showToast('Thank you for your feedback!', 'success');
+      textArea.value = '';
+      announce('Feedback submitted successfully');
+    } else {
+      showToast('Feedback saved locally. Sign in for cloud storage.', 'info');
+    }
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Feedback';
+  });
 }
 
 /* ============================================================

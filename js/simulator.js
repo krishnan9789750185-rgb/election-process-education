@@ -188,7 +188,7 @@ function renderCurrentStep() {
   /* Step content */
   const stepContent = createElement('div', { className: 'sim__step-content' });
   stepContent.innerHTML = `
-    <h3 class="sim__step-title">${step.icon || '📌'} ${escapeHTML(step.title)}</h3>
+    <h3 class="sim__step-title"><span aria-hidden="true">${step.icon || '📌'}</span> ${escapeHTML(step.title)}</h3>
     <p class="sim__narrative">${escapeHTML(step.narrative)}</p>
   `;
 

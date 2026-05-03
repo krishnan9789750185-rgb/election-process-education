@@ -14,6 +14,9 @@
   <meta property="og:description" content="AI-powered, interactive web application that helps users understand the democratic election process through guided timelines, role-based simulations, quizzes, and conversational AI.">
   <meta property="og:type" content="website">
   <title>ElectIQ — Interactive Election Process Education</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/animations.css">
@@ -50,7 +53,7 @@
   </nav>
 
   <!-- Main Content -->
-  <main id="main-content" role="main">
+  <main id="main-content">
 
     <!-- Hero Section -->
     <section id="hero" class="hero section" aria-labelledby="hero-title">
@@ -206,6 +209,44 @@
         </div>
         <div class="translate__widget-wrapper">
           <div id="google-translate-widget" role="region" aria-label="Google Translate language selector"></div>
+        </div>
+      </div>
+    <!-- Leaderboard (Firebase Firestore read) -->
+    <section id="leaderboard" class="section" aria-labelledby="leaderboard-title">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title" id="leaderboard-title">🏆 Leaderboard</h2>
+          <p class="section__subtitle">Top quiz performers. Sign in with Google to save your score and compete!</p>
+        </div>
+        <div class="leaderboard__actions">
+          <button id="google-signin-btn" class="btn btn--primary btn--lg" aria-label="Sign in with Google">
+            <span aria-hidden="true">🔑</span> Sign in with Google
+          </button>
+          <span id="user-display" class="leaderboard__user"></span>
+        </div>
+        <div id="leaderboard-container" role="region" aria-label="Quiz leaderboard"></div>
+      </div>
+    </section>
+
+    <!-- Feedback (Firebase Firestore write) -->
+    <section id="feedback" class="section" aria-labelledby="feedback-title">
+      <div class="container">
+        <div class="section__header">
+          <h2 class="section__title" id="feedback-title">📝 Share Your Feedback</h2>
+          <p class="section__subtitle">Help us improve ElectIQ. Your feedback is stored securely in Firebase.</p>
+        </div>
+        <div class="feedback__form">
+          <textarea id="feedback-text" class="feedback__textarea" placeholder="Tell us what you think about ElectIQ..." aria-label="Your feedback" maxlength="2000" rows="4"></textarea>
+          <div class="feedback__actions">
+            <select id="feedback-rating" class="feedback__rating" aria-label="Rate your experience">
+              <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+              <option value="4">⭐⭐⭐⭐ Good</option>
+              <option value="3">⭐⭐⭐ Average</option>
+              <option value="2">⭐⭐ Below Average</option>
+              <option value="1">⭐ Poor</option>
+            </select>
+            <button id="feedback-submit-btn" class="btn btn--primary">Submit Feedback</button>
+          </div>
         </div>
       </div>
     </section>

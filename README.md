@@ -57,7 +57,7 @@
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/election-process-education.git
+   git clone https://github.com/krishnan9841226883-design/election-process-education.git
    cd election-process-education
    ```
 
@@ -87,21 +87,29 @@ election-process-education/
 │   ├── assistant.js        # Gemini AI chat module
 │   ├── timeline.js         # Election timeline module
 │   ├── simulator.js        # Role simulator module
-│   └── quiz.js             # Quiz engine module
+│   ├── quiz.js             # Quiz engine module
+│   ├── firebase-config.js  # Firebase Auth, Firestore, Analytics
+│   └── google-services.js  # Maps, Calendar, Translate
 ├── tests/
 │   ├── test.html           # Test runner
-│   └── tests.js            # Unit test suite
+│   └── tests.js            # Unit test suite (90+ tests)
+├── firestore.rules         # Firestore security rules
+├── nginx.conf              # Production server config
+├── Dockerfile              # Container deployment
+├── manifest.json           # PWA manifest
 └── README.md
 ```
 
 ## 🔒 Security
 
 - **XSS Prevention**: All user input is escaped and sanitized
-- **Content Security Policy**: Enforced via meta tag
+- **Content Security Policy**: Enforced via meta tag and nginx headers (defense-in-depth)
 - **Rate Limiting**: API calls are rate-limited to prevent abuse
 - **Input Validation**: Length limits, type checking, pattern matching
 - **No Inline Scripts**: All JS is in external ES modules
 - **API Key Safety**: Keys stored only in client localStorage
+- **Firestore Rules**: Per-collection access control (see `firestore.rules`)
+- **Security Headers**: X-Frame-Options, HSTS, Permissions-Policy, X-XSS-Protection
 
 ## ♿ Accessibility
 
@@ -118,20 +126,28 @@ election-process-education/
 
 ## 🧪 Testing
 
-Open `tests/test.html` in a browser to run the test suite. Tests cover:
+Open `tests/test.html` in a browser to run the test suite (90+ tests). Tests cover:
 
-- **Security**: HTML escaping, sanitization, input validation, rate limiting
-- **Utilities**: Score formatting, ID generation, DOM helpers
-- **Constants**: Data integrity, structure validation, frozen state
+- **Security**: HTML escaping, sanitization (quoted/unquoted handlers), input validation, rate limiting, CSP constants
+- **Utilities**: Score formatting, ID generation, DOM helpers, storage, toasts
+- **Constants**: Data integrity for all 10+ constant objects, structure validation, frozen state
+- **Google Services**: Calendar URL generation, Translate config, Maps config
 - **Accessibility**: DOM structure, ARIA attributes
 
 ## 📦 Google Services Integration
 
 | Service | Usage |
 |---------|-------|
-| **Gemini AI** | Conversational election education assistant |
-| **Google Charts** | Voter turnout & electoral systems visualization |
-| **Google Fonts** | Inter & Plus Jakarta Sans typography |
+| **Google Gemini AI** | Conversational election education assistant with contextual chat |
+| **Google Charts** | Voter turnout trends & electoral systems visualization |
+| **Google Maps Platform** | Polling station finder with search via Maps Embed API |
+| **Google Calendar** | Add election dates to Google Calendar with one click |
+| **Google Translate** | Multi-language support (17+ languages) via Translate widget |
+| **Firebase Auth** | Anonymous auth + Google Sign-In for persistent identity |
+| **Firebase Firestore** | Quiz scores, leaderboard, user progress, simulator results, feedback |
+| **Firebase Analytics** | Event tracking for user interactions and engagement |
+| **Google Fonts** | Inter & Plus Jakarta Sans premium typography |
+| **Google Cloud Run** | Production deployment via Docker container |
 
 ## 📄 License
 

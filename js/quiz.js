@@ -123,8 +123,12 @@ function setupEventListeners() {
  * Shuffles questions and resets all state.
  */
 function startQuiz() {
-  /* Shuffle questions */
-  questions = [...QUIZ_QUESTIONS].sort(() => Math.random() - 0.5);
+  /* Fisher-Yates shuffle for uniform distribution */
+  questions = [...QUIZ_QUESTIONS];
+  for (let i = questions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [questions[i], questions[j]] = [questions[j], questions[i]];
+  }
   currentIndex = 0;
   correctCount = 0;
   streak = 0;
@@ -233,6 +237,10 @@ function startTimer() {
     const timerEl = qs('#quiz-timer');
     if (timerEl && timeRemaining <= APP_CONFIG.TIMER_WARNING_THRESHOLD_S) {
       timerEl.classList.add('quiz__timer--warning');
+      /* Announce to screen readers at the warning threshold */
+      if (timeRemaining === APP_CONFIG.TIMER_WARNING_THRESHOLD_S) {
+        announce(`${timeRemaining} seconds remaining`, 'assertive');
+      }
     }
 
     if (timeRemaining <= 0) {
@@ -286,8 +294,12 @@ async function handleAnswer(selectedIndex) {
 
   /* Disable all options */
   const options = qs('#quiz-container').querySelectorAll('.quiz__option');
-  options.forEach((opt) => {
+  options.forEach((opt, i) => {
     opt.disabled = true;
+    /* Update aria-checked for the selected radio button */
+    if (i === selectedIndex) {
+      opt.setAttribute('aria-checked', 'true');
+    }
   });
 
   /* Track results */

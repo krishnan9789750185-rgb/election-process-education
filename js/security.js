@@ -47,8 +47,8 @@ export function sanitizeHTML(html) {
   const tagRegex = new RegExp(`<(?!\\/?(${allowedTagPattern})\\b)[^>]*>`, 'gi');
   let sanitized = html.replace(tagRegex, '');
 
-  /* Remove event handlers and javascript: URLs */
-  sanitized = sanitized.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '');
+  /* Remove event handlers (covers quoted, unquoted, and spaced variants) and javascript: URLs */
+  sanitized = sanitized.replace(/\s*on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
   sanitized = sanitized.replace(/javascript\s*:/gi, '');
   sanitized = sanitized.replace(/data\s*:/gi, '');
 
@@ -188,6 +188,12 @@ export function enforceCSP() {
   meta.content = [
     "default-src 'self'",
     `script-src ${scriptSrc}`,
+    /*
+     * 'unsafe-inline' is required for style-src because:
+     * 1. Google Translate widget dynamically injects inline styles
+     * 2. Nonce-based CSS is not feasible with third-party widget injection
+     * The risk is mitigated by server-side CSP headers in nginx.conf
+     */
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://translate.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https:",

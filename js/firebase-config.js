@@ -374,4 +374,29 @@ export function getUserId() {
   return currentUserId;
 }
 
+/**
+ * Signs in using Google OAuth via Firebase Authentication.
+ * Upgrades from anonymous to persistent Google identity.
+ * @returns {Promise<Object|null>} The signed-in user object, or null on failure.
+ */
+export async function signInWithGoogle() {
+  if (!auth || !firebaseModules.auth) {
+    console.warn('[ElectIQ] Firebase Auth not available for Google Sign-In');
+    return null;
+  }
+
+  try {
+    const { GoogleAuthProvider, signInWithPopup } = firebaseModules.auth;
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    currentUserId = result.user.uid;
+    logAnalyticsEvent('google_signin_success', { uid: currentUserId });
+    return result.user;
+  } catch (error) {
+    console.warn('[ElectIQ] Google Sign-In failed:', error.message);
+    logAnalyticsEvent('google_signin_failed', { error: error.code || error.message });
+    return null;
+  }
+}
+
 export { COLLECTIONS };
