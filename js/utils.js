@@ -203,7 +203,7 @@ export function delay(ms) {
  * @param {string} [options.behavior='smooth'] - Scroll behavior.
  * @param {string} [options.block='start'] - Vertical alignment.
  */
-export function scrollToElement(target, options = {}) {
+function scrollToElement(target, options = {}) {
   const element = typeof target === 'string' ? qs(target) : target;
   if (!element) {
     return;

@@ -16,7 +16,6 @@ import { initQuiz } from './quiz.js';
 import { initFirebase, trackSectionView, logAnalyticsEvent, signInWithGoogle, getLeaderboard, submitFeedback } from './firebase-config.js';
 import { initGoogleServices } from './google-services.js';
 
-
 /** @type {string} Currently active section ID */
 let activeSection = 'hero';
 

@@ -8,6 +8,22 @@
 
 import { APP_CONFIG } from './constants.js';
 import { storage } from './utils.js';
+
+/**
+ * Internal logger with structured prefix for debugging.
+ * Uses console.warn for non-critical issues (Firebase fallbacks).
+ * @param {'info'|'warn'|'error'} level - Log severity.
+ * @param {string} message - Log message.
+ * @param {*} [detail] - Optional detail to log.
+ */
+function log(level, message, detail) {
+  const prefix = `[${APP_CONFIG.APP_NAME}]`;
+  if (detail !== undefined) {
+    console[level](prefix, message, detail);
+  } else {
+    console[level](prefix, message);
+  }
+}
 import { ENV } from './env.js';
 
 /* ============================================================
@@ -113,7 +129,7 @@ export async function initFirebase() {
         app_version: APP_CONFIG.APP_VERSION,
       });
     } catch {
-      console.warn('[ElectIQ] Analytics initialization skipped');
+      log('warn', 'Analytics initialization skipped');
     }
 
     /* Initialize Firestore */
@@ -124,10 +140,10 @@ export async function initFirebase() {
     await signInAnonymously();
 
     isInitialized = true;
-    console.info('[ElectIQ] Firebase initialized successfully');
+    log('info', 'Firebase initialized successfully');
     return true;
   } catch (error) {
-    console.warn('[ElectIQ] Firebase initialization failed, using localStorage fallback:', error.message);
+    log('warn', 'Firebase initialization failed, using localStorage fallback:', error.message);
     return false;
   }
 }
@@ -150,7 +166,7 @@ async function signInAnonymously() {
     logAnalyticsEvent('user_authenticated', { method: 'anonymous' });
     return currentUserId;
   } catch (error) {
-    console.warn('[ElectIQ] Anonymous auth failed:', error.message);
+    log('warn', 'Anonymous auth failed:', error.message);
     currentUserId = storage.get('firebase_uid', `local_${Date.now()}`);
     return currentUserId;
   }
@@ -254,7 +270,7 @@ export async function saveQuizScore(scoreData) {
 
     return true;
   } catch (error) {
-    console.warn('[ElectIQ] Failed to save quiz score to Firestore:', error.message);
+    log('warn', 'Failed to save quiz score to Firestore:', error.message);
     /* Fallback: save locally so user's progress isn't lost */
     const scores = storage.get('quiz_scores', []);
     scores.push({ ...scoreData, timestamp: Date.now() });
@@ -297,7 +313,7 @@ export async function saveSimulatorResult(resultData) {
     });
     return true;
   } catch (error) {
-    console.warn('[ElectIQ] Failed to save simulator result:', error.message);
+    log('warn', 'Failed to save simulator result:', error.message);
     /* Fallback: save locally so user's progress isn't lost */
     const results = storage.get('simulator_results', []);
     results.push({ ...resultData, timestamp: new Date().toISOString() });
@@ -317,6 +333,8 @@ export async function saveSimulatorResult(resultData) {
  */
 export async function saveUserProgress(progressData) {
   if (!db || !currentUserId || !firebaseModules.firestore) {
+    /* Fallback: persist progress locally */
+    storage.set('user_progress', { ...progressData, lastUpdated: new Date().toISOString() });
     return false;
   }
 
@@ -329,7 +347,7 @@ export async function saveUserProgress(progressData) {
     }, { merge: true });
     return true;
   } catch (error) {
-    console.warn('[ElectIQ] Failed to save user progress:', error.message);
+    log('warn', 'Failed to save user progress:', error.message);
     return false;
   }
 }
@@ -354,7 +372,7 @@ export async function getLeaderboard(limit = APP_CONFIG.LEADERBOARD_DEFAULT_LIMI
     const snapshot = await getDocs(q);
     return snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
   } catch (error) {
-    console.warn('[ElectIQ] Failed to fetch leaderboard:', error.message);
+    log('warn', 'Failed to fetch leaderboard:', error.message);
     return [];
   }
 }
@@ -386,7 +404,7 @@ export async function submitFeedback(feedbackData) {
     });
     return true;
   } catch (error) {
-    console.warn('[ElectIQ] Failed to submit feedback:', error.message);
+    log('warn', 'Failed to submit feedback:', error.message);
     return false;
   }
 }
@@ -414,7 +432,7 @@ export function getUserId() {
  */
 export async function signInWithGoogle() {
   if (!auth || !firebaseModules.auth) {
-    console.warn('[ElectIQ] Firebase Auth not available for Google Sign-In');
+    log('warn', 'Firebase Auth not available for Google Sign-In');
     return null;
   }
 
@@ -426,7 +444,7 @@ export async function signInWithGoogle() {
     logAnalyticsEvent('google_signin_success', { uid: currentUserId });
     return result.user;
   } catch (error) {
-    console.warn('[ElectIQ] Google Sign-In failed:', error.message);
+    log('warn', 'Google Sign-In failed:', error.message);
     logAnalyticsEvent('google_signin_failed', { error: error.code || error.message });
     return null;
   }

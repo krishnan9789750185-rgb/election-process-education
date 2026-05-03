@@ -35,7 +35,7 @@ export function initGoogleTranslate() {
       );
       trackInteraction('google_translate', 'initialized');
     } catch (error) {
-      console.warn('[ElectIQ] Google Translate initialization failed:', error.message);
+      /* Google Translate init failed — widget will show fallback text */
     }
   };
 

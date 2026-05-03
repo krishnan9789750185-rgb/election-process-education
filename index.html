@@ -68,6 +68,16 @@
         <p class="hero__desc hero__animate">
           Your interactive, AI-powered guide to the democratic election process. Explore timelines, simulate roles, test your knowledge, and chat with an intelligent assistant.
         </p>
+        <div class="hero__objectives hero__animate" role="region" aria-label="Learning objectives">
+          <h2 class="sr-only">Learning Objectives</h2>
+          <p class="hero__objectives-intro">By using ElectIQ, you will learn to:</p>
+          <ul class="hero__objectives-list">
+            <li>Describe each stage of the democratic election process from announcement to results</li>
+            <li>Identify the roles and responsibilities of voters, candidates, and election officers</li>
+            <li>Explain key voting methods and security measures that protect electoral integrity</li>
+            <li>Navigate voter registration, eligibility requirements, and ballot casting procedures</li>
+          </ul>
+        </div>
         <div class="hero__actions hero__animate">
           <a href="#assistant" class="btn btn--primary btn--lg" id="cta-chat">💬 Chat with AI</a>
           <a href="#timeline" class="btn btn--secondary btn--lg" id="cta-timeline">📋 Explore Timeline</a>
@@ -109,7 +119,7 @@
             <p class="api-key-info">🔑 Enter your <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google Gemini API Key</a> to enable AI chat:</p>
             <div class="api-key-form">
               <input type="password" id="api-key-input" placeholder="Enter your Gemini API key" autocomplete="off" aria-label="Gemini API key">
-              <button class="btn btn--primary" id="api-key-save-btn">Save Key</button>
+              <button class="btn btn--primary" id="api-key-save-btn" aria-label="Save API key">Save Key</button>
             </div>
           </div>
           <div class="chat-box" role="region" aria-label="Chat conversation">
@@ -120,7 +130,7 @@
               <button id="chat-send-btn" aria-label="Send message">Send</button>
             </div>
             <div class="chat__toolbar">
-              <button id="chat-clear-btn" class="btn btn--secondary chat__clear-btn">Clear Chat</button>
+              <button id="chat-clear-btn" class="btn btn--secondary chat__clear-btn" aria-label="Clear chat history">Clear Chat</button>
             </div>
           </div>
         </div>
@@ -247,7 +257,7 @@
               <option value="2">⭐⭐ Below Average</option>
               <option value="1">⭐ Poor</option>
             </select>
-            <button id="feedback-submit-btn" class="btn btn--primary">Submit Feedback</button>
+            <button id="feedback-submit-btn" class="btn btn--primary" aria-label="Submit your feedback">Submit Feedback</button>
           </div>
         </div>
       </div>

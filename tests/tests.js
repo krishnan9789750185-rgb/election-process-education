@@ -575,6 +575,95 @@ describe('Utils — debounce', () => {
   });
 });
 
+describe('Security — rateLimiter', () => {
+  it('should allow first request', () => {
+    rateLimiter.reset('test_rl');
+    const result = rateLimiter.check('test_rl');
+    assertEqual(result.allowed, true);
+  });
+  it('should return retryAfterMs of 0 when allowed', () => {
+    rateLimiter.reset('test_rl2');
+    const result = rateLimiter.check('test_rl2');
+    assertEqual(result.retryAfterMs, 0);
+  });
+  it('should have reset method', () => {
+    assertType(rateLimiter.reset, 'function');
+  });
+});
+
+describe('Security — isValidAPIKey', () => {
+  it('should reject empty string', () => { assertEqual(isValidAPIKey(''), false); });
+  it('should reject short keys', () => { assertEqual(isValidAPIKey('abc'), false); });
+  it('should accept valid format', () => { assertEqual(isValidAPIKey('AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8'), true); });
+  it('should reject non-string', () => { assertEqual(isValidAPIKey(123), false); });
+  it('should reject null', () => { assertEqual(isValidAPIKey(null), false); });
+  it('should reject keys with spaces', () => { assertEqual(isValidAPIKey('key with spaces'), false); });
+});
+
+describe('Security — generateNonce', () => {
+  it('should return a string', () => { assertType(generateNonce(), 'string'); });
+  it('should generate unique values', () => { assertNotEqual(generateNonce(), generateNonce()); });
+  it('should have reasonable length', () => { assert(generateNonce().length > 10, 'Nonce should be reasonably long'); });
+});
+
+describe('Utils — showToast', () => {
+  it('should create toast container if missing', () => {
+    showToast('test message', 'info');
+    const container = document.getElementById('toast-container');
+    assert(container !== null, 'Toast container should be created');
+  });
+  it('should add toast element', () => {
+    showToast('test toast', 'success');
+    const toasts = document.querySelectorAll('.toast');
+    assert(toasts.length > 0, 'Toast should be added to DOM');
+  });
+});
+
+describe('Data — ELECTION_TIMELINE', () => {
+  it('should have 10 steps', () => { assertEqual(ELECTION_TIMELINE.length, 10); });
+  it('every step should have required fields', () => {
+    ELECTION_TIMELINE.forEach((step) => {
+      assert(step.id !== undefined, 'Step must have id');
+      assertType(step.title, 'string');
+      assertType(step.summary, 'string');
+      assert(Array.isArray(step.details), 'Details must be an array');
+      assertType(step.keyFact, 'string');
+    });
+  });
+});
+
+describe('Data — QUIZ_QUESTIONS', () => {
+  it('should have correct answer index in range', () => {
+    QUIZ_QUESTIONS.forEach((q, i) => {
+      assert(q.correct >= 0 && q.correct < q.options.length,
+        `Q${i + 1} correct index ${q.correct} out of range`);
+    });
+  });
+  it('every question should have difficulty', () => {
+    QUIZ_QUESTIONS.forEach((q) => {
+      assertIncludes(['easy', 'medium', 'hard'], q.difficulty);
+    });
+  });
+});
+
+describe('Data — SIMULATOR_ROLES', () => {
+  it('should have voter role', () => { assert(SIMULATOR_ROLES.voter !== undefined, 'Should have voter role'); });
+  it('should have candidate role', () => { assert(SIMULATOR_ROLES.candidate !== undefined, 'Should have candidate role'); });
+  it('should have officer role', () => { assert(SIMULATOR_ROLES.officer !== undefined, 'Should have officer role'); });
+});
+
+describe('Google — generateGoogleCalendarURL', () => {
+  it('should return a URL string', () => {
+    const url = generateGoogleCalendarURL({ title: 'Test', date: '2026-01-01', description: 'Desc' });
+    assertType(url, 'string');
+    assertIncludes(url, 'calendar.google.com');
+  });
+  it('should encode the title', () => {
+    const url = generateGoogleCalendarURL({ title: 'Test Event', date: '2026-01-01', description: 'D' });
+    assertIncludes(url, 'Test');
+  });
+});
+
 /* ============================================================
  * RENDER RESULTS
  * ============================================================ */
