@@ -5,7 +5,7 @@
  * @module quiz
  */
 
-import { QUIZ_QUESTIONS, APP_CONFIG } from './constants.js';
+import { QUIZ_QUESTIONS, APP_CONFIG, DIFFICULTY_COLORS, QUIZ_GRADE_THRESHOLDS } from './constants.js';
 import { qs, createElement, showToast, storage, delay, formatScore } from './utils.js';
 import { announce } from './accessibility.js';
 import { escapeHTML } from './security.js';
@@ -158,7 +158,7 @@ function renderQuestion() {
   }
   timeRemaining = APP_CONFIG.QUIZ_TIME_PER_QUESTION_S;
 
-  const difficultyColors = { easy: '#00D4AA', medium: '#FFB347', hard: '#FF6B6B' };
+  const difficultyColor = DIFFICULTY_COLORS[question.difficulty] || DIFFICULTY_COLORS.medium;
 
   container.innerHTML = `
     <div class="quiz__question-view">
@@ -182,7 +182,7 @@ function renderQuestion() {
       </div>
 
       <div class="quiz__body">
-        <span class="quiz__difficulty" style="--diff-color: ${difficultyColors[question.difficulty] || difficultyColors.medium}">
+        <span class="quiz__difficulty" style="--diff-color: ${difficultyColor}">
           ${escapeHTML(question.difficulty.toUpperCase())} • ${escapeHTML(question.category)}
         </span>
         <h3 class="quiz__question-text">${escapeHTML(question.question)}</h3>
@@ -231,7 +231,7 @@ function startTimer() {
 
     /* Visual warning when time is low */
     const timerEl = qs('#quiz-timer');
-    if (timerEl && timeRemaining <= 5) {
+    if (timerEl && timeRemaining <= APP_CONFIG.TIMER_WARNING_THRESHOLD_S) {
       timerEl.classList.add('quiz__timer--warning');
     }
 
@@ -350,7 +350,7 @@ async function showCorrectAnswer(question, selectedIndex) {
   }
 
   /* Wait then proceed */
-  await delay(2500);
+  await delay(APP_CONFIG.ANSWER_EXPLANATION_DELAY_MS);
 
   currentIndex++;
   if (currentIndex >= questions.length) {
@@ -394,13 +394,13 @@ function showQuizResults() {
   });
 
   let grade, gradeEmoji;
-  if (percentage >= 90) {
+  if (percentage >= QUIZ_GRADE_THRESHOLDS.EXPERT) {
     grade = 'Election Expert!';
     gradeEmoji = '🏆';
-  } else if (percentage >= 70) {
+  } else if (percentage >= QUIZ_GRADE_THRESHOLDS.INFORMED) {
     grade = 'Well Informed Citizen';
     gradeEmoji = '⭐';
-  } else if (percentage >= 50) {
+  } else if (percentage >= QUIZ_GRADE_THRESHOLDS.LEARNING) {
     grade = 'Learning Democrat';
     gradeEmoji = '📖';
   } else {

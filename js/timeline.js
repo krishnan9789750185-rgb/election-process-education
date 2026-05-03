@@ -5,7 +5,7 @@
  * @module timeline
  */
 
-import { ELECTION_TIMELINE } from './constants.js';
+import { ELECTION_TIMELINE, APP_CONFIG } from './constants.js';
 import { qs, qsa, createElement, scrollToElement, storage } from './utils.js';
 import { announce, initKeyboardNav } from './accessibility.js';
 import { escapeHTML } from './security.js';
@@ -292,7 +292,7 @@ function setupScrollObserver() {
         }
       });
     },
-    { threshold: 0.2, rootMargin: '0px 0px -50px 0px' }
+    { threshold: APP_CONFIG.TIMELINE_INTERSECTION_THRESHOLD, rootMargin: APP_CONFIG.TIMELINE_ROOT_MARGIN }
   );
 
   steps.forEach((step) => observer.observe(step));

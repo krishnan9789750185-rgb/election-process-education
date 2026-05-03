@@ -170,6 +170,8 @@ export function generateNonce() {
 /**
  * Sets up Content Security Policy meta tag.
  * Enforces strict CSP to mitigate XSS and injection attacks.
+ * Dynamically builds the policy from centralized SECURITY constants
+ * to allow all required Google service domains.
  */
 export function enforceCSP() {
   const existingMeta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
@@ -177,16 +179,20 @@ export function enforceCSP() {
     return; /* CSP already set */
   }
 
+  const scriptSrc = SECURITY.CSP_ALLOWED_SCRIPT_DOMAINS.join(' ');
+  const connectSrc = SECURITY.CSP_ALLOWED_CONNECT_DOMAINS.join(' ');
+  const frameSrc = SECURITY.CSP_ALLOWED_FRAME_DOMAINS.join(' ');
+
   const meta = document.createElement('meta');
   meta.httpEquiv = 'Content-Security-Policy';
   meta.content = [
     "default-src 'self'",
-    "script-src 'self'",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    `script-src ${scriptSrc}`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://translate.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https:",
-    "connect-src 'self' https://generativelanguage.googleapis.com",
-    "frame-src 'none'",
+    `connect-src ${connectSrc}`,
+    `frame-src ${frameSrc}`,
     "object-src 'none'",
     "base-uri 'self'",
   ].join('; ');

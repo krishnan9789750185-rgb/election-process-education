@@ -5,7 +5,7 @@
  * @module simulator
  */
 
-import { SIMULATOR_ROLES, SIMULATOR_SCENARIOS } from './constants.js';
+import { SIMULATOR_ROLES, SIMULATOR_SCENARIOS, APP_CONFIG, SIMULATOR_GRADE_THRESHOLDS } from './constants.js';
 import { qs, createElement, showToast, storage, delay } from './utils.js';
 import { announce } from './accessibility.js';
 import { escapeHTML } from './security.js';
@@ -305,7 +305,7 @@ async function handleChoice(choiceIndex) {
   });
 
   /* Next step button */
-  await delay(800);
+  await delay(APP_CONFIG.CHOICE_OUTCOME_DELAY_MS);
 
   const isLastStep = currentStepIndex >= scenarios.length - 1;
   const nextBtn = createElement(
@@ -350,11 +350,11 @@ function showResults() {
   const percentage = Math.round((totalScore / maxScore) * 100);
 
   let grade, gradeClass, gradeMessage;
-  if (percentage >= 90) {
+  if (percentage >= SIMULATOR_GRADE_THRESHOLDS.EXCELLENT) {
     grade = '🌟 Excellent!';
     gradeClass = 'excellent';
     gradeMessage = 'You demonstrated outstanding knowledge of the election process!';
-  } else if (percentage >= 70) {
+  } else if (percentage >= SIMULATOR_GRADE_THRESHOLDS.GOOD) {
     grade = '👍 Good Job!';
     gradeClass = 'good';
     gradeMessage = 'You have a solid understanding. Review the areas where you could improve.';

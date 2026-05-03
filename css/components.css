@@ -213,11 +213,23 @@
 
 /* --- Google Translate --- */
 .translate-fallback{color:var(--clr-text-muted);font-size:var(--fs-sm)}
+.translate__widget-wrapper{display:flex;justify-content:center;padding:var(--sp-4)}
 .goog-te-gadget{font-family:var(--font-primary)!important}
+
+/* --- API Key Info --- */
+.api-key-info{margin-bottom:var(--sp-3);font-size:var(--fs-sm);color:var(--clr-text-secondary)}
+
+/* --- Chat Clear Button --- */
+.chat__clear-btn{font-size:var(--fs-xs);padding:var(--sp-1) var(--sp-3)}
+
+/* --- Simulator Actions --- */
+.simulator__actions{text-align:center;margin-top:var(--sp-4)}
 
 /* --- Footer --- */
 .footer{padding:var(--sp-8) 0;border-top:1px solid var(--clr-border);text-align:center;color:var(--clr-text-muted);font-size:var(--fs-sm)}
 .footer a{color:var(--clr-accent-primary)}
+.footer__services{margin-top:var(--sp-2)}
+.footer__links{margin-top:var(--sp-1)}
 
 /* --- Responsive --- */
 @media(max-width:768px){

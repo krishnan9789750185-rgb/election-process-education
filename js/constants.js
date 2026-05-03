@@ -25,6 +25,34 @@ export const APP_CONFIG = Object.freeze({
   MAX_INPUT_LENGTH: 1000,
   QUIZ_TIME_PER_QUESTION_S: 30,
   MIN_API_KEY_LENGTH: 20,
+  HERO_ANIMATION_BASE_DELAY_MS: 200,
+  HERO_ANIMATION_STAGGER_MS: 150,
+  SCROLL_THRESHOLD_PX: 60,
+  INTERSECTION_THRESHOLD: 0.3,
+  TIMELINE_INTERSECTION_THRESHOLD: 0.2,
+  TIMELINE_ROOT_MARGIN: '0px 0px -50px 0px',
+  PARTICLE_COUNT: 30,
+  PARTICLE_WRAP_OFFSET: 20,
+  PARTICLE_MIN_SIZE: 10,
+  PARTICLE_SIZE_RANGE: 14,
+  PARTICLE_MIN_OPACITY: 0.1,
+  PARTICLE_OPACITY_RANGE: 0.3,
+  PARTICLE_VELOCITY_RANGE: 0.5,
+  CHOICE_OUTCOME_DELAY_MS: 800,
+  ANSWER_EXPLANATION_DELAY_MS: 2500,
+  TIMER_WARNING_THRESHOLD_S: 5,
+  RECENT_HISTORY_LIMIT: 10,
+  GEMINI_TEMPERATURE: 0.7,
+  GEMINI_TOP_K: 40,
+  GEMINI_TOP_P: 0.95,
+  GEMINI_MAX_OUTPUT_TOKENS: 1024,
+  CHART_ANIMATION_DURATION_MS: 1000,
+  FONT_SIZE_MIN: 12,
+  FONT_SIZE_MAX: 24,
+  FONT_SIZE_STEP: 2,
+  FONT_SIZE_DEFAULT: 16,
+  LEADERBOARD_DEFAULT_LIMIT: 10,
+  MAPS_EMBED_API_KEY: 'AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8',
 });
 
 /** @constant {Object} ARIA_LABELS - Accessibility labels */
@@ -46,6 +74,87 @@ export const SECURITY = Object.freeze({
   MAX_RATE_LIMIT_REQUESTS: 10,
   RATE_LIMIT_WINDOW_MS: 60000,
   INPUT_PATTERN: /^[a-zA-Z0-9\s.,!?'"()\-:;@#%&*+=\[\]{}|/\\<>~`^_]+$/,
+  CSP_ALLOWED_SCRIPT_DOMAINS: [
+    "'self'",
+    'https://www.gstatic.com',
+    'https://translate.google.com',
+    'https://translate.googleapis.com',
+    'https://apis.google.com',
+  ],
+  CSP_ALLOWED_CONNECT_DOMAINS: [
+    "'self'",
+    'https://generativelanguage.googleapis.com',
+    'https://firestore.googleapis.com',
+    'https://www.googleapis.com',
+    'https://identitytoolkit.googleapis.com',
+    'https://securetoken.googleapis.com',
+    'https://www.google-analytics.com',
+    'https://translate.googleapis.com',
+  ],
+  CSP_ALLOWED_FRAME_DOMAINS: [
+    'https://www.google.com',
+    'https://accounts.google.com',
+  ],
+});
+
+/** @constant {Object} CHART_CONFIG - Google Charts styling configuration */
+export const CHART_CONFIG = Object.freeze({
+  COLORS: {
+    PRIMARY: '#6C63FF',
+    PRIMARY_LIGHT: '#7B73FF',
+    SECONDARY: '#00D4AA',
+    SECONDARY_LIGHT: '#00E4BA',
+    TERTIARY: '#FFB347',
+    DANGER: '#FF6B8A',
+    PURPLE: '#A78BFA',
+    TEXT: '#E8E8FF',
+    TEXT_MUTED: '#A0A0CC',
+    GRID: '#1E2250',
+  },
+  TITLE_FONT_SIZE: 14,
+  LEGEND_FONT_SIZE: 11,
+  CHART_AREA_BAR: { width: '75%', height: '70%' },
+  CHART_AREA_PIE: { width: '85%', height: '80%' },
+  PIE_HOLE_SIZE: 0.4,
+  TURNOUT_MIN_VALUE: 50,
+});
+
+/** @constant {Array<string>} PARTICLE_SYMBOLS - Symbols used in hero particle animation */
+export const PARTICLE_SYMBOLS = Object.freeze(['🗳️', '✓', '⭐', '📋', '🏛️', '✦', '◆']);
+
+/** @constant {Array<Object>} ELECTION_DATES - Election dates for Google Calendar integration */
+export const ELECTION_DATES = Object.freeze([
+  {
+    title: 'Voter Registration Deadline',
+    date: '2026-09-15',
+    description: 'Last day to register or update your voter registration for the upcoming election.',
+    location: 'Your Local Election Office',
+  },
+  {
+    title: 'Early Voting Begins',
+    date: '2026-10-20',
+    description: 'Early voting period opens. Cast your vote before Election Day at designated centers.',
+    location: 'Early Voting Centers',
+  },
+  {
+    title: 'Election Day',
+    date: '2026-11-03',
+    description: 'General Election Day. Vote at your assigned polling station.',
+    location: 'Your Assigned Polling Station',
+  },
+  {
+    title: 'Results Declaration',
+    date: '2026-11-10',
+    description: 'Official election results are expected to be declared.',
+    location: 'Election Commission Headquarters',
+  },
+]);
+
+/** @constant {Object} GOOGLE_TRANSLATE_CONFIG - Configuration for Google Translate widget */
+export const GOOGLE_TRANSLATE_CONFIG = Object.freeze({
+  PAGE_LANGUAGE: 'en',
+  INCLUDED_LANGUAGES: 'en,hi,ta,te,bn,mr,gu,kn,ml,pa,ur,es,fr,de,zh-CN,ja,ar',
+  ELEMENT_ID: 'google-translate-widget',
 });
 
 /* ============================================================
@@ -699,3 +808,23 @@ export const SUGGESTED_QUESTIONS = Object.freeze([
   'How are election results verified?',
   'What rights do voters have?',
 ]);
+
+/** @constant {Object} QUIZ_GRADE_THRESHOLDS - Score thresholds for quiz grade calculation */
+export const QUIZ_GRADE_THRESHOLDS = Object.freeze({
+  EXPERT: 90,
+  INFORMED: 70,
+  LEARNING: 50,
+});
+
+/** @constant {Object} SIMULATOR_GRADE_THRESHOLDS - Score thresholds for simulator grade calculation */
+export const SIMULATOR_GRADE_THRESHOLDS = Object.freeze({
+  EXCELLENT: 90,
+  GOOD: 70,
+});
+
+/** @constant {Object} DIFFICULTY_COLORS - Color mapping for quiz difficulty levels */
+export const DIFFICULTY_COLORS = Object.freeze({
+  easy: '#00D4AA',
+  medium: '#FFB347',
+  hard: '#FF6B6B',
+});

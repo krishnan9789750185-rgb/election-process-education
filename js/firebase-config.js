@@ -310,7 +310,7 @@ export async function saveUserProgress(progressData) {
  * @param {number} [limit=10] - Maximum number of entries to retrieve.
  * @returns {Promise<Array<Object>>} Array of leaderboard entries.
  */
-export async function getLeaderboard(limit = 10) {
+export async function getLeaderboard(limit = APP_CONFIG.LEADERBOARD_DEFAULT_LIMIT) {
   if (!db || !firebaseModules.firestore) {
     return [];
   }

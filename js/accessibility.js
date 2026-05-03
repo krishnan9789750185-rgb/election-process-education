@@ -7,7 +7,7 @@
 
 import { qs, qsa } from './utils.js';
 import { storage } from './utils.js';
-import { ARIA_LABELS } from './constants.js';
+import { ARIA_LABELS, APP_CONFIG } from './constants.js';
 
 /**
  * Manages focus trapping within modal dialogs.
@@ -200,21 +200,18 @@ export function toggleHighContrast() {
 export function adjustFontSize(action) {
   const root = document.documentElement;
   const currentSize = parseFloat(getComputedStyle(root).fontSize);
-  const MIN_SIZE = 12;
-  const MAX_SIZE = 24;
-  const STEP = 2;
 
   let newSize = currentSize;
 
   switch (action) {
     case 'increase':
-      newSize = Math.min(currentSize + STEP, MAX_SIZE);
+      newSize = Math.min(currentSize + APP_CONFIG.FONT_SIZE_STEP, APP_CONFIG.FONT_SIZE_MAX);
       break;
     case 'decrease':
-      newSize = Math.max(currentSize - STEP, MIN_SIZE);
+      newSize = Math.max(currentSize - APP_CONFIG.FONT_SIZE_STEP, APP_CONFIG.FONT_SIZE_MIN);
       break;
     case 'reset':
-      newSize = 16;
+      newSize = APP_CONFIG.FONT_SIZE_DEFAULT;
       break;
     default:
       return;

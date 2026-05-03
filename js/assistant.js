@@ -245,7 +245,7 @@ async function callGeminiAPI(userMessage) {
   const url = `${APP_CONFIG.GEMINI_API_URL}/${APP_CONFIG.GEMINI_MODEL}:generateContent?key=${apiKey}`;
 
   /* Build conversation context from recent messages */
-  const recentHistory = chatHistory.slice(-10).map((msg) => ({
+  const recentHistory = chatHistory.slice(-APP_CONFIG.RECENT_HISTORY_LIMIT).map((msg) => ({
     role: msg.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: msg.content }],
   }));
@@ -258,10 +258,10 @@ async function callGeminiAPI(userMessage) {
       { role: 'user', parts: [{ text: userMessage }] },
     ],
     generationConfig: {
-      temperature: 0.7,
-      topK: 40,
-      topP: 0.95,
-      maxOutputTokens: 1024,
+      temperature: APP_CONFIG.GEMINI_TEMPERATURE,
+      topK: APP_CONFIG.GEMINI_TOP_K,
+      topP: APP_CONFIG.GEMINI_TOP_P,
+      maxOutputTokens: APP_CONFIG.GEMINI_MAX_OUTPUT_TOKENS,
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },

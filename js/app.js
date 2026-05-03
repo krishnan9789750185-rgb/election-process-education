@@ -5,7 +5,7 @@
  * @module app
  */
 
-import { APP_CONFIG } from './constants.js';
+import { APP_CONFIG, CHART_CONFIG, PARTICLE_SYMBOLS } from './constants.js';
 import { enforceCSP } from './security.js';
 import { qs, qsa, throttle, showToast } from './utils.js';
 import { initAccessibility, announce, prefersReducedMotion, toggleHighContrast, adjustFontSize } from './accessibility.js';
@@ -22,6 +22,7 @@ let activeSection = 'hero';
 /**
  * Initializes the entire application.
  * Called when the DOM is fully loaded.
+ * @returns {Promise<void>}
  */
 async function initApp() {
   /* Security first */
@@ -92,7 +93,7 @@ function setupNavigation() {
         }
       });
     },
-    { threshold: 0.3 }
+    { threshold: APP_CONFIG.INTERSECTION_THRESHOLD }
   );
 
   sections.forEach((section) => observer.observe(section));
@@ -171,7 +172,7 @@ function setupScrollEffects() {
 
   const handleScroll = throttle(() => {
     const scrollY = window.scrollY;
-    nav.classList.toggle('nav--scrolled', scrollY > 60);
+    nav.classList.toggle('nav--scrolled', scrollY > APP_CONFIG.SCROLL_THRESHOLD_PX);
   });
 
   window.addEventListener('scroll', handleScroll, { passive: true });
@@ -210,7 +211,7 @@ function animateHero() {
   elements.forEach((el, index) => {
     setTimeout(() => {
       el.classList.add('hero__animate--visible');
-    }, 200 + index * 150);
+    }, APP_CONFIG.HERO_ANIMATION_BASE_DELAY_MS + index * APP_CONFIG.HERO_ANIMATION_STAGGER_MS);
   });
 
   /* Start particle animation */
@@ -232,33 +233,37 @@ function initParticles() {
     return;
   }
 
-  const PARTICLE_COUNT = 30;
-  const PARTICLE_SYMBOLS = ['🗳️', '✓', '⭐', '📋', '🏛️', '✦', '◆'];
-
   let particles = [];
   let animFrameId = null;
 
-  /** Resizes canvas to match container */
+  /**
+   * Resizes canvas to match its parent container dimensions.
+   */
   function resize() {
     const rect = canvas.parentElement.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
   }
 
-  /** Creates a single particle */
+  /**
+   * Creates a single particle with random properties.
+   * @returns {Object} A particle object with position, velocity, size, opacity, and symbol.
+   */
   function createParticle() {
     return {
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: (Math.random() - 0.5) * 0.5,
-      size: 10 + Math.random() * 14,
-      opacity: 0.1 + Math.random() * 0.3,
+      vx: (Math.random() - APP_CONFIG.PARTICLE_VELOCITY_RANGE) * APP_CONFIG.PARTICLE_VELOCITY_RANGE,
+      vy: (Math.random() - APP_CONFIG.PARTICLE_VELOCITY_RANGE) * APP_CONFIG.PARTICLE_VELOCITY_RANGE,
+      size: APP_CONFIG.PARTICLE_MIN_SIZE + Math.random() * APP_CONFIG.PARTICLE_SIZE_RANGE,
+      opacity: APP_CONFIG.PARTICLE_MIN_OPACITY + Math.random() * APP_CONFIG.PARTICLE_OPACITY_RANGE,
       symbol: PARTICLE_SYMBOLS[Math.floor(Math.random() * PARTICLE_SYMBOLS.length)],
     };
   }
 
-  /** Animation loop */
+  /**
+   * Runs the particle animation loop, updating positions and drawing each frame.
+   */
   function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -266,11 +271,12 @@ function initParticles() {
       p.x += p.vx;
       p.y += p.vy;
 
+      const wrapOffset = APP_CONFIG.PARTICLE_WRAP_OFFSET;
       /* Wrap around edges */
-      if (p.x < -20) { p.x = canvas.width + 20; }
-      if (p.x > canvas.width + 20) { p.x = -20; }
-      if (p.y < -20) { p.y = canvas.height + 20; }
-      if (p.y > canvas.height + 20) { p.y = -20; }
+      if (p.x < -wrapOffset) { p.x = canvas.width + wrapOffset; }
+      if (p.x > canvas.width + wrapOffset) { p.x = -wrapOffset; }
+      if (p.y < -wrapOffset) { p.y = canvas.height + wrapOffset; }
+      if (p.y > canvas.height + wrapOffset) { p.y = -wrapOffset; }
 
       ctx.globalAlpha = p.opacity;
       ctx.font = `${p.size}px serif`;
@@ -282,7 +288,7 @@ function initParticles() {
   }
 
   resize();
-  particles = Array.from({ length: PARTICLE_COUNT }, createParticle);
+  particles = Array.from({ length: APP_CONFIG.PARTICLE_COUNT }, createParticle);
   animate();
 
   window.addEventListener('resize', throttle(resize));
@@ -320,7 +326,7 @@ function loadGoogleCharts() {
 }
 
 /**
- * Draws election data charts using Google Charts.
+ * Draws all election data charts.
  */
 function drawCharts() {
   drawVoterTurnoutChart();
@@ -328,7 +334,7 @@ function drawCharts() {
 }
 
 /**
- * Draws the voter turnout trend chart.
+ * Draws the voter turnout trend chart using Google Charts ColumnChart.
  */
 function drawVoterTurnoutChart() {
   const container = qs('#turnout-chart');
@@ -336,35 +342,37 @@ function drawVoterTurnoutChart() {
     return;
   }
 
+  const { COLORS } = CHART_CONFIG;
+
   const data = google.visualization.arrayToDataTable([
     ['Year', 'Voter Turnout %', { role: 'style' }],
-    ['2004', 58.07, '#6C63FF'],
-    ['2009', 58.19, '#7B73FF'],
-    ['2014', 66.44, '#00D4AA'],
-    ['2019', 67.40, '#00E4BA'],
-    ['2024', 65.79, '#FFB347'],
+    ['2004', 58.07, COLORS.PRIMARY],
+    ['2009', 58.19, COLORS.PRIMARY_LIGHT],
+    ['2014', 66.44, COLORS.SECONDARY],
+    ['2019', 67.40, COLORS.SECONDARY_LIGHT],
+    ['2024', 65.79, COLORS.TERTIARY],
   ]);
 
   const options = {
     title: 'Voter Turnout Trends in Indian General Elections',
-    titleTextStyle: { color: '#E8E8FF', fontSize: 14, bold: true },
+    titleTextStyle: { color: COLORS.TEXT, fontSize: CHART_CONFIG.TITLE_FONT_SIZE, bold: true },
     backgroundColor: 'transparent',
     legend: { position: 'none' },
     hAxis: {
       title: 'Election Year',
-      titleTextStyle: { color: '#A0A0CC' },
-      textStyle: { color: '#A0A0CC' },
-      gridlines: { color: '#1E2250' },
+      titleTextStyle: { color: COLORS.TEXT_MUTED },
+      textStyle: { color: COLORS.TEXT_MUTED },
+      gridlines: { color: COLORS.GRID },
     },
     vAxis: {
       title: 'Turnout (%)',
-      titleTextStyle: { color: '#A0A0CC' },
-      textStyle: { color: '#A0A0CC' },
-      gridlines: { color: '#1E2250' },
-      minValue: 50,
+      titleTextStyle: { color: COLORS.TEXT_MUTED },
+      textStyle: { color: COLORS.TEXT_MUTED },
+      gridlines: { color: COLORS.GRID },
+      minValue: CHART_CONFIG.TURNOUT_MIN_VALUE,
     },
-    chartArea: { width: '75%', height: '70%' },
-    animation: { startup: true, duration: 1000, easing: 'out' },
+    chartArea: CHART_CONFIG.CHART_AREA_BAR,
+    animation: { startup: true, duration: APP_CONFIG.CHART_ANIMATION_DURATION_MS, easing: 'out' },
   };
 
   const chart = new google.visualization.ColumnChart(container);
@@ -372,13 +380,15 @@ function drawVoterTurnoutChart() {
 }
 
 /**
- * Draws the global election methods pie chart.
+ * Draws the global election methods pie chart using Google Charts PieChart.
  */
 function drawElectionMethodsChart() {
   const container = qs('#methods-chart');
   if (!container || typeof google === 'undefined') {
     return;
   }
+
+  const { COLORS } = CHART_CONFIG;
 
   const data = google.visualization.arrayToDataTable([
     ['Method', 'Countries Using'],
@@ -391,13 +401,13 @@ function drawElectionMethodsChart() {
 
   const options = {
     title: 'Electoral Systems Used Worldwide',
-    titleTextStyle: { color: '#E8E8FF', fontSize: 14, bold: true },
+    titleTextStyle: { color: COLORS.TEXT, fontSize: CHART_CONFIG.TITLE_FONT_SIZE, bold: true },
     backgroundColor: 'transparent',
-    legend: { position: 'right', textStyle: { color: '#A0A0CC', fontSize: 11 } },
+    legend: { position: 'right', textStyle: { color: COLORS.TEXT_MUTED, fontSize: CHART_CONFIG.LEGEND_FONT_SIZE } },
     pieSliceTextStyle: { color: '#fff' },
-    colors: ['#6C63FF', '#00D4AA', '#FFB347', '#FF6B8A', '#A78BFA'],
-    chartArea: { width: '85%', height: '80%' },
-    pieHole: 0.4,
+    colors: [COLORS.PRIMARY, COLORS.SECONDARY, COLORS.TERTIARY, COLORS.DANGER, COLORS.PURPLE],
+    chartArea: CHART_CONFIG.CHART_AREA_PIE,
+    pieHole: CHART_CONFIG.PIE_HOLE_SIZE,
   };
 
   const chart = new google.visualization.PieChart(container);
