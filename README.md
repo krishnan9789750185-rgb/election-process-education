@@ -89,7 +89,9 @@ election-process-education/
 │   ├── simulator.js        # Role simulator module
 │   ├── quiz.js             # Quiz engine module
 │   ├── firebase-config.js  # Firebase Auth, Firestore, Analytics
-│   └── google-services.js  # Maps, Calendar, Translate
+│   ├── google-services.js  # Maps, Calendar, Translate
+│   ├── env.js              # Environment config (gitignored)
+│   └── env.example.js      # Environment config template
 ├── tests/
 │   ├── test.html           # Test runner
 │   └── tests.js            # Unit test suite (90+ tests)
@@ -107,7 +109,7 @@ election-process-education/
 - **Rate Limiting**: API calls are rate-limited to prevent abuse
 - **Input Validation**: Length limits, type checking, pattern matching
 - **No Inline Scripts**: All JS is in external ES modules
-- **API Key Safety**: Keys stored only in client localStorage
+- **API Key Separation**: Keys isolated in `env.js` (gitignored), template provided as `env.example.js`
 - **Firestore Rules**: Per-collection access control (see `firestore.rules`)
 - **Security Headers**: X-Frame-Options, HSTS, Permissions-Policy, X-XSS-Protection
 

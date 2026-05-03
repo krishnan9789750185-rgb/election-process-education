@@ -228,7 +228,7 @@ function renderCurrentStep() {
  * @param {number} choiceIndex - The index of the selected choice.
  */
 async function handleChoice(choiceIndex) {
-  if (!currentRole) {
+  if (!isSimulating || !currentRole) {
     return;
   }
 
@@ -366,9 +366,12 @@ function showResults() {
 
   simArea.innerHTML = '';
 
-  const resultsEl = createElement('div', { className: 'sim__results' });
+  const resultsEl = createElement('div', { className: 'sim__results', role: 'region', 'aria-label': 'Simulation Results' });
+  
+  /* Using innerHTML for complex templating; all dynamic values are escaped via escapeHTML() */
   resultsEl.innerHTML = `
-    <div class="sim__results-header">
+    <h3 class="sim__results-title">Simulation Complete</h3>
+    <div class="sim__results-summary">
       <h3 class="sim__results-grade sim__results-grade--${gradeClass}">${grade}</h3>
       <p class="sim__results-message">${escapeHTML(gradeMessage)}</p>
     </div>
@@ -408,6 +411,10 @@ function showResults() {
   actions.appendChild(retryBtn);
   actions.appendChild(changeRoleBtn);
   resultsEl.appendChild(actions);
+
+  const nextStep = createElement('div', { className: 'sim__next-step', style: 'margin-top:var(--sp-6);padding:var(--sp-4);background:var(--clr-bg-elevated);border-radius:var(--radius-md);border-left:4px solid var(--clr-accent-primary)' });
+  nextStep.innerHTML = `<p style="margin:0;font-size:var(--fs-sm)">📌 <strong>What's Next?</strong> Test your knowledge in the <a href="#quiz" style="color:var(--clr-accent-primary);font-weight:600">Quiz</a>, or ask the <a href="#assistant" style="color:var(--clr-accent-primary);font-weight:600">AI Assistant</a> about topics you encountered.</p>`;
+  resultsEl.appendChild(nextStep);
 
   simArea.appendChild(resultsEl);
   announce(`Simulation complete! Your score: ${percentage}%. ${gradeMessage}`);

@@ -6,7 +6,7 @@
  */
 
 import { QUIZ_QUESTIONS, APP_CONFIG, DIFFICULTY_COLORS, QUIZ_GRADE_THRESHOLDS } from './constants.js';
-import { qs, createElement, showToast, storage, delay, formatScore } from './utils.js';
+import { qs, createElement, showToast, storage, delay } from './utils.js';
 import { announce } from './accessibility.js';
 import { escapeHTML } from './security.js';
 import { saveQuizScore, logAnalyticsEvent } from './firebase-config.js';
@@ -59,6 +59,7 @@ function renderStartScreen() {
   const highScore = storage.get('quiz_high_score', 0);
   const totalAttempts = storage.get('quiz_attempts', 0);
 
+  /* Using innerHTML for complex templating; all dynamic values are escaped via escapeHTML() or from trusted constants */
   container.innerHTML = `
     <div class="quiz__start">
       <div class="quiz__start-icon" aria-hidden="true">🧠</div>
@@ -473,6 +474,10 @@ function showQuizResults() {
       <div class="quiz__results-actions">
         <button class="btn btn--primary" id="quiz-restart-btn">🔄 Try Again</button>
         <button class="btn btn--secondary" id="quiz-home-btn">🏠 Back to Start</button>
+      </div>
+
+      <div class="quiz__next-step" style="margin-top:var(--sp-6);padding:var(--sp-4);background:var(--clr-bg-elevated);border-radius:var(--radius-md);border-left:4px solid var(--clr-accent-primary)">
+        <p style="margin:0;font-size:var(--fs-sm)">📌 <strong>What's Next?</strong> Try the <a href="#simulator" style="color:var(--clr-accent-primary);font-weight:600">Role Simulator</a> to experience elections from different perspectives, or explore the <a href="#timeline" style="color:var(--clr-accent-primary);font-weight:600">Timeline</a> to review steps you missed.</p>
       </div>
     </div>
   `;

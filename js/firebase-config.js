@@ -1,15 +1,17 @@
 /**
  * @fileoverview Firebase integration for ElectIQ.
- * Provides Firebase Authentication (anonymous), Firestore database persistence,
- * and Firebase Analytics event tracking for comprehensive Google Services integration.
+ * Provides Firebase Authentication (anonymous + Google Sign-In),
+ * Firestore database persistence, and Firebase Analytics event tracking
+ * for comprehensive Google Services integration.
  * @module firebase-config
  */
 
 import { APP_CONFIG } from './constants.js';
 import { storage } from './utils.js';
+import { ENV } from './env.js';
 
 /* ============================================================
- * FIREBASE CDN IMPORTS (v10 Modular SDK)
+ * FIREBASE CDN IMPORTS (v11 Modular SDK)
  * ============================================================ */
 
 /** @type {Object|null} Firebase app instance */
@@ -30,22 +32,31 @@ let currentUserId = null;
 /** @type {boolean} Whether Firebase is successfully initialized */
 let isInitialized = false;
 
-/** @type {Object} Firebase SDK module references */
+/**
+ * Firebase SDK module references for deferred access.
+ * @type {{
+ *   app?: typeof import('firebase/app'),
+ *   auth?: typeof import('firebase/auth'),
+ *   firestore?: typeof import('firebase/firestore'),
+ *   analytics?: typeof import('firebase/analytics')
+ * }}
+ */
 const firebaseModules = {};
 
 /**
  * Firebase project configuration.
- * Uses the Google Cloud project for seamless integration.
+ * Keys are imported from env.js to separate config from logic.
  * @constant {Object}
+ * @see js/env.example.js for setup instructions
  */
 const FIREBASE_CONFIG = Object.freeze({
-  apiKey: 'AIzaSyBOWRq6-7AiVrYhSpHl37X09gGOdWP0KmQ',
-  authDomain: 'prompt-war-493707.firebaseapp.com',
-  projectId: 'prompt-war-493707',
-  storageBucket: 'prompt-war-493707.firebasestorage.app',
-  messagingSenderId: '912679656092',
-  appId: '1:912679656092:web:electiq2026app',
-  measurementId: 'G-ELECTIQ2026',
+  apiKey: ENV.FIREBASE_API_KEY,
+  authDomain: ENV.FIREBASE_AUTH_DOMAIN,
+  projectId: ENV.FIREBASE_PROJECT_ID,
+  storageBucket: ENV.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: ENV.FIREBASE_MESSAGING_SENDER_ID,
+  appId: ENV.FIREBASE_APP_ID,
+  measurementId: ENV.FIREBASE_MEASUREMENT_ID,
 });
 
 /**
@@ -71,7 +82,13 @@ export async function initFirebase() {
   }
 
   try {
-    /* Dynamically import Firebase SDK modules from CDN */
+    /*
+     * Dynamically import Firebase SDK v11.6.0 modules from Google CDN.
+     * Using dynamic imports (not bundled) because:
+     * 1. This is a vanilla JS app with no build step
+     * 2. Dynamic imports allow graceful degradation if CDN is unreachable
+     * 3. Tree-shaking is manual — we only import the modules we need
+     */
     const [appModule, authModule, firestoreModule, analyticsModule] = await Promise.all([
       import('https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js'),
       import('https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js'),
@@ -238,6 +255,10 @@ export async function saveQuizScore(scoreData) {
     return true;
   } catch (error) {
     console.warn('[ElectIQ] Failed to save quiz score to Firestore:', error.message);
+    /* Fallback: save locally so user's progress isn't lost */
+    const scores = storage.get('quiz_scores', []);
+    scores.push({ ...scoreData, timestamp: Date.now() });
+    storage.set('quiz_scores', scores);
     return false;
   }
 }
@@ -260,6 +281,10 @@ export async function saveSimulatorResult(resultData) {
   });
 
   if (!db || !currentUserId || !firebaseModules.firestore) {
+    /* Fallback to localStorage */
+    const results = storage.get('simulator_results', []);
+    results.push({ ...resultData, timestamp: new Date().toISOString() });
+    storage.set('simulator_results', results);
     return false;
   }
 
@@ -273,6 +298,10 @@ export async function saveSimulatorResult(resultData) {
     return true;
   } catch (error) {
     console.warn('[ElectIQ] Failed to save simulator result:', error.message);
+    /* Fallback: save locally so user's progress isn't lost */
+    const results = storage.get('simulator_results', []);
+    results.push({ ...resultData, timestamp: new Date().toISOString() });
+    storage.set('simulator_results', results);
     return false;
   }
 }
@@ -341,6 +370,10 @@ export async function submitFeedback(feedbackData) {
   logAnalyticsEvent('feedback_submitted', { rating: feedbackData.rating });
 
   if (!db || !firebaseModules.firestore) {
+    /* Fallback to localStorage when Firebase is unavailable */
+    const feedbackList = storage.get('pending_feedback', []);
+    feedbackList.push({ ...feedbackData, timestamp: new Date().toISOString() });
+    storage.set('pending_feedback', feedbackList);
     return false;
   }
 

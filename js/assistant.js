@@ -248,7 +248,11 @@ async function callGeminiAPI(userMessage) {
    */
   const url = `${APP_CONFIG.GEMINI_API_URL}/${APP_CONFIG.GEMINI_MODEL}:generateContent?key=${apiKey}`;
 
-  /* Build conversation context from recent messages, filtering out error entries */
+  /*
+   * Build conversation payload for Gemini API.
+   * Error messages (role: 'error') are excluded to avoid polluting AI context.
+   * Roles are mapped: 'assistant' → 'model' (Gemini's expected format).
+   */
   const recentHistory = chatHistory
     .filter((msg) => msg.role !== 'error')
     .slice(-APP_CONFIG.RECENT_HISTORY_LIMIT)
@@ -259,6 +263,11 @@ async function callGeminiAPI(userMessage) {
 
   const requestBody = {
     contents: [
+      /*
+       * System prompt is injected as a user→model pair because Gemini's
+       * multi-turn chat format doesn't support a dedicated system role.
+       * The fake model response primes the AI with the correct persona.
+       */
       { role: 'user', parts: [{ text: GEMINI_SYSTEM_PROMPT }] },
       { role: 'model', parts: [{ text: 'Understood. I am ElectIQ, ready to help with election education.' }] },
       ...recentHistory,
@@ -270,6 +279,7 @@ async function callGeminiAPI(userMessage) {
       topP: APP_CONFIG.GEMINI_TOP_P,
       maxOutputTokens: APP_CONFIG.GEMINI_MAX_OUTPUT_TOKENS,
     },
+    /* Block harmful content categories at medium threshold */
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
       { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -335,7 +345,8 @@ function appendMessage(message) {
   const messageEl = createElement('div', {
     className: `chat-message chat-message--${message.role}`,
     id: message.id,
-    'aria-label': `${message.role === 'user' ? 'You' : 'ElectIQ'}: ${message.content.slice(0, 80)}`,
+    role: 'article',
+    'aria-label': `${message.role === 'user' ? 'You' : 'ElectIQ'}: ${[...message.content].slice(0, 80).join('')}`,
   });
 
   const avatarIcon = message.role === 'user' ? '👤' : message.role === 'error' ? '⚠️' : '🗳️';

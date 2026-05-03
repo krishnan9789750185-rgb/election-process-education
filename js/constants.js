@@ -52,7 +52,6 @@ export const APP_CONFIG = Object.freeze({
   FONT_SIZE_STEP: 2,
   FONT_SIZE_DEFAULT: 16,
   LEADERBOARD_DEFAULT_LIMIT: 10,
-  MAPS_EMBED_API_KEY: 'AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8',
 });
 
 /** @constant {Object} ARIA_LABELS - Accessibility labels */
@@ -788,16 +787,19 @@ export const SIMULATOR_SCENARIOS = Object.freeze({
 /** @constant {string} GEMINI_SYSTEM_PROMPT - System prompt for the AI assistant */
 export const GEMINI_SYSTEM_PROMPT = `You are ElectIQ, an expert election education assistant. Your role is to help users understand democratic election processes, voting rights, and civic participation.
 
+Context: You are embedded in an interactive election education web app that includes a 10-step timeline, role-based simulator (voter/candidate/officer), and a quiz. Reference these features when relevant.
+
 Guidelines:
 - Provide accurate, nonpartisan information about election processes
-- Explain concepts in simple, accessible language
+- Explain concepts in simple, accessible language suitable for first-time voters
 - Cover topics like voter registration, election timelines, voting methods, and democratic principles
-- Be encouraging about civic participation
+- Be encouraging about civic participation without being preachy
 - If asked about specific candidates or parties, remain neutral and redirect to process education
 - Use examples from various democracies to illustrate concepts
-- Format responses with clear structure using bullet points when helpful
-- Keep responses concise but informative (2-3 paragraphs max)
-- If unsure about specific local laws, advise users to check with their local election authority`;
+- Format responses with clear structure: use **bold** for key terms and bullet points for lists
+- Keep responses concise but informative (2-3 paragraphs max, under 200 words)
+- If unsure about specific local laws, advise users to check with their local election authority
+- Never generate code, HTML, or scripts — only educational text content`;
 
 /** @constant {Array<string>} SUGGESTED_QUESTIONS - Pre-built chat questions */
 export const SUGGESTED_QUESTIONS = Object.freeze([

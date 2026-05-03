@@ -29,7 +29,7 @@ export function qsa(selector, parent = document) {
 /**
  * Creates a DOM element with attributes and children.
  * @param {string} tag - HTML tag name.
- * @param {Object<string, string>} [attrs={}] - Attributes to set on the element.
+ * @param {Object<string, string|Function|Object>} [attrs={}] - Attributes, dataset, or event listeners.
  * @param  {...(string|Element)} children - Child nodes or text content.
  * @returns {Element} The created element.
  */

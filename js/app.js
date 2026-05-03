@@ -6,7 +6,7 @@
  */
 
 import { APP_CONFIG, CHART_CONFIG, PARTICLE_SYMBOLS } from './constants.js';
-import { enforceCSP } from './security.js';
+import { enforceCSP, escapeHTML } from './security.js';
 import { qs, qsa, throttle, showToast } from './utils.js';
 import { initAccessibility, announce, prefersReducedMotion, toggleHighContrast, adjustFontSize } from './accessibility.js';
 import { initAssistant } from './assistant.js';
@@ -15,7 +15,7 @@ import { initSimulator } from './simulator.js';
 import { initQuiz } from './quiz.js';
 import { initFirebase, trackSectionView, logAnalyticsEvent, signInWithGoogle, getLeaderboard, submitFeedback } from './firebase-config.js';
 import { initGoogleServices } from './google-services.js';
-import { escapeHTML } from './security.js';
+
 
 /** @type {string} Currently active section ID */
 let activeSection = 'hero';
@@ -38,7 +38,10 @@ async function initApp() {
   setupScrollEffects();
 
   /* Initialize Firebase (Auth, Firestore, Analytics) */
-  await initFirebase();
+  const firebaseReady = await initFirebase();
+  if (!firebaseReady) {
+    showToast('Running in offline mode. Your progress is saved locally.', 'info');
+  }
   logAnalyticsEvent('app_initialized', { version: APP_CONFIG.APP_VERSION });
 
   /* Initialize feature modules */
@@ -227,6 +230,13 @@ function animateHero() {
 /**
  * Initializes the decorative particle animation in the hero section.
  * Creates floating ballot/democracy-themed particles.
+ *
+ * Architecture:
+ * - Canvas-based animation with emoji particles
+ * - Random initial positions, velocities, and sizes for natural motion
+ * - Edge-wrapping (particles reappear on opposite side)
+ * - Automatic pause via IntersectionObserver when hero is not visible (saves CPU)
+ * - Respects prefers-reduced-motion for accessibility
  */
 function initParticles() {
   const canvas = qs('#hero-particles');

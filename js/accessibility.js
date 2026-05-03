@@ -5,8 +5,7 @@
  * @module accessibility
  */
 
-import { qs, qsa } from './utils.js';
-import { storage } from './utils.js';
+import { qs, qsa, storage } from './utils.js';
 import { ARIA_LABELS, APP_CONFIG } from './constants.js';
 
 /**

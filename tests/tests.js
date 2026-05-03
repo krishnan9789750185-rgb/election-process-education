@@ -42,7 +42,7 @@ function assertThrows(fn, msg) {
 }
 
 /* ---- Import Modules ---- */
-import { escapeHTML, sanitizeHTML, validateInput, rateLimiter, isValidAPIKey, generateNonce } from '../js/security.js';
+import { escapeHTML, sanitizeHTML, validateInput, rateLimiter, isValidAPIKey, generateNonce, enforceCSP } from '../js/security.js';
 import { formatScore, generateId, debounce, createElement, storage, showToast } from '../js/utils.js';
 import {
   APP_CONFIG, ELECTION_TIMELINE, QUIZ_QUESTIONS, SIMULATOR_ROLES, SIMULATOR_SCENARIOS,
@@ -50,6 +50,7 @@ import {
   QUIZ_GRADE_THRESHOLDS, SIMULATOR_GRADE_THRESHOLDS, DIFFICULTY_COLORS, SUGGESTED_QUESTIONS,
 } from '../js/constants.js';
 import { generateGoogleCalendarURL } from '../js/google-services.js';
+import { announce, toggleHighContrast, adjustFontSize } from '../js/accessibility.js';
 
 /* ============================================================
  * SECURITY TESTS
@@ -487,6 +488,90 @@ describe('Accessibility — DOM Structure', () => {
   });
   it('should have a page title', () => {
     assert(document.title.length > 0, 'Page should have title');
+  });
+});
+
+describe('Accessibility — announce', () => {
+  it('should create aria-live region on first call', () => {
+    announce('test message');
+    const region = document.getElementById('aria-live-polite');
+    assert(region !== null, 'Should create polite live region');
+    assertEqual(region.getAttribute('aria-live'), 'polite');
+  });
+  it('should create assertive region when specified', () => {
+    announce('urgent message', 'assertive');
+    const region = document.getElementById('aria-live-assertive');
+    assert(region !== null, 'Should create assertive live region');
+  });
+  it('should have sr-only class for screen readers', () => {
+    announce('hidden message');
+    const region = document.getElementById('aria-live-polite');
+    assertIncludes(region.className, 'sr-only');
+  });
+});
+
+describe('Accessibility — toggleHighContrast', () => {
+  it('should toggle high-contrast class on documentElement', () => {
+    const initial = document.documentElement.classList.contains('high-contrast');
+    const result = toggleHighContrast();
+    assertEqual(result, !initial);
+    assertEqual(document.documentElement.classList.contains('high-contrast'), !initial);
+    toggleHighContrast(); // reset
+  });
+  it('should return boolean state', () => {
+    const result = toggleHighContrast();
+    assertType(result, 'boolean');
+    toggleHighContrast(); // reset
+  });
+});
+
+describe('Accessibility — adjustFontSize', () => {
+  it('should increase font size', () => {
+    adjustFontSize('reset');
+    const before = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    adjustFontSize('increase');
+    const after = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    assert(after > before, 'Font should increase');
+    adjustFontSize('reset');
+  });
+  it('should not exceed maximum', () => {
+    for (let i = 0; i < 20; i++) { adjustFontSize('increase'); }
+    const size = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    assert(size <= 24, 'Font should not exceed max');
+    adjustFontSize('reset');
+  });
+  it('should not go below minimum', () => {
+    for (let i = 0; i < 20; i++) { adjustFontSize('decrease'); }
+    const size = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    assert(size >= 12, 'Font should not go below min');
+    adjustFontSize('reset');
+  });
+});
+
+describe('Security — enforceCSP', () => {
+  it('should add CSP meta tag', () => {
+    enforceCSP();
+    const meta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+    assert(meta !== null, 'CSP meta tag should exist');
+    assertIncludes(meta.content, "default-src 'self'");
+    assertIncludes(meta.content, 'generativelanguage.googleapis.com');
+  });
+  it('should not duplicate CSP meta tag on repeated calls', () => {
+    enforceCSP();
+    enforceCSP();
+    const metas = document.querySelectorAll('meta[http-equiv="Content-Security-Policy"]');
+    assertEqual(metas.length, 1, 'Should have exactly one CSP meta');
+  });
+});
+
+describe('Utils — debounce', () => {
+  it('should return a function', () => {
+    const fn = debounce(() => {});
+    assertType(fn, 'function');
+  });
+  it('should have a cancel method', () => {
+    const fn = debounce(() => {});
+    assertType(fn.cancel, 'function');
   });
 });
 

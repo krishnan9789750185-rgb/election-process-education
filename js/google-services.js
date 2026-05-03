@@ -10,6 +10,7 @@ import { qs, createElement, showToast } from './utils.js';
 import { escapeHTML } from './security.js';
 import { announce } from './accessibility.js';
 import { logAnalyticsEvent, trackInteraction } from './firebase-config.js';
+import { ENV } from './env.js';
 
 /* ============================================================
  * GOOGLE TRANSLATE INTEGRATION
@@ -214,7 +215,7 @@ function updateMapSearch(query) {
     return;
   }
 
-  const mapsApiKey = APP_CONFIG.MAPS_EMBED_API_KEY;
+  const mapsApiKey = ENV.MAPS_EMBED_API_KEY;
   const encodedQuery = encodeURIComponent(query);
   iframe.src = `https://www.google.com/maps/embed/v1/search?key=${mapsApiKey}&q=${encodedQuery}`;
   iframe.title = `Google Maps showing results for: ${query}`;

@@ -43,13 +43,16 @@ export function sanitizeHTML(html) {
     return '';
   }
 
+  /* Build allowlist regex: matches any tag NOT in SECURITY.ALLOWED_TAGS */
   const allowedTagPattern = SECURITY.ALLOWED_TAGS.join('|');
   const tagRegex = new RegExp(`<(?!\\/?(${allowedTagPattern})\\b)[^>]*>`, 'gi');
   let sanitized = html.replace(tagRegex, '');
 
-  /* Remove event handlers (covers quoted, unquoted, and spaced variants) and javascript: URLs */
-  sanitized = sanitized.replace(/\s*on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+  /* Strip inline event handlers (onclick, onerror, etc.) — handles quoted, unquoted, and spaced values */
+  sanitized = sanitized.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi, '');
+  /* Block javascript: protocol in href/src attributes */
   sanitized = sanitized.replace(/javascript\s*:/gi, '');
+  /* Block data: protocol to prevent base64-encoded payloads */
   sanitized = sanitized.replace(/data\s*:/gi, '');
 
   return sanitized;

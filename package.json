@@ -3,17 +3,28 @@
   "version": "1.0.0",
   "description": "ElectIQ - Interactive Election Process Education Platform powered by Google Gemini AI, Firebase, Google Maps, Google Charts, and Google Calendar",
   "main": "index.html",
+  "type": "module",
   "scripts": {
     "start": "npx serve . -l 3000",
-    "test": "echo 'Open tests/test.html in a browser to run tests'",
+    "test": "npx serve . -l 3001 & sleep 2 && open http://localhost:3001/tests/test.html || echo 'Open tests/test.html in browser'",
     "lint": "npx eslint js/",
+    "lint:fix": "npx eslint js/ --fix",
+    "validate": "npx html-validate index.html",
     "deploy": "gcloud run deploy electiq-app --source . --region us-central1 --allow-unauthenticated --port 8080"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "serve": "^14.2.0",
+    "html-validate": "^8.0.0"
   },
   "keywords": ["election", "education", "gemini", "firebase", "google-services", "quiz", "accessibility"],
   "author": "ElectIQ Team",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/vanithakavisri4-dev/election-process-education"
+    "url": "https://github.com/krishnan9841226883-design/election-process-education"
   }
 }
